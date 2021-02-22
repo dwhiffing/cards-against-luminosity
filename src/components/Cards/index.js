@@ -1,20 +1,17 @@
 import React, { useState, useEffect, useRef } from 'react'
 import {
   shuffleDeck,
-  useWindowEvent,
   moveCard,
   getCanCardMove,
   getCardIsActive,
   getCardFromPoint,
-  useForceUpdate,
   getBottomCard,
   checkForFinishedPiles,
   getCardPile,
 } from './utils'
-import Card from './components/Card'
+import { useForceUpdate, useWindowEvent } from '../../utils'
+import Card from './Card'
 import debounce from 'lodash/debounce'
-import { Header } from './components/Header'
-import './index.css'
 import './card.css'
 
 const initialState = { mouseY: 0, mouseX: 0 }
@@ -23,8 +20,7 @@ const EMPTY_CARDS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({
   pileIndex: n,
   isEmpty: true,
 }))
-
-function App() {
+export const Cards = () => {
   const [activeCard, setActiveCard] = useState(null)
   const [cursorState, setCursorState] = useState(initialState)
   const startRef = useRef({ x: 0, y: 0 })
@@ -98,65 +94,46 @@ function App() {
   useWindowEvent('pointerup', onMouseUp)
   useWindowEvent('pointerdown', onMouseDown)
   useWindowEvent('pointermove', onMouseMove)
-
   return (
-    <div className="container">
-      <Header
-        hasWon={hasWon}
-        onReset={() => {
-          setCards(shuffleDeck())
-          setHasWon(false)
-        }}
-      />
+    <div
+      style={{
+        flex: 1,
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <div style={{ position: 'relative', width: '25rem', height: '25rem' }}>
+        {[0, 1, 2, 3, 4, 5].map((n) => (
+          <Card key={`pile-${n}`} card={EMPTY_CARDS[n]} />
+        ))}
 
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <div style={{ position: 'relative', width: '25rem', height: '25rem' }}>
-          {[0, 1, 2, 3, 4, 5].map((n) => (
-            <Card key={`pile-${n}`} card={EMPTY_CARDS[n]} />
-          ))}
+        {cards.map((card, cardIndex) => {
+          const isActive = getCardIsActive(activeCard, card)
 
-          {cards.map((card, cardIndex) => {
-            const isActive = getCardIsActive(activeCard, card)
-
-            return (
-              <Card
-                key={`card-${cardIndex}`}
-                card={card}
-                activeCard={activeCard}
-                isActive={isActive}
-                pileSize={getCardPile(card, cards).length}
-                canMove={getCanCardMove(card, cards)}
-                isFinished={finishedPiles.includes(card.pileIndex)}
-                mouseX={
-                  getCardIsActive(activeCard, card) && pressed
-                    ? cursorState.mouseX
-                    : -1
-                }
-                mouseY={
-                  getCardIsActive(activeCard, card) && pressed
-                    ? cursorState.mouseY
-                    : -1
-                }
-              />
-            )
-          })}
-        </div>
+          return (
+            <Card
+              key={`card-${cardIndex}`}
+              card={card}
+              activeCard={activeCard}
+              isActive={isActive}
+              pileSize={getCardPile(card, cards).length}
+              canMove={getCanCardMove(card, cards)}
+              isFinished={finishedPiles.includes(card.pileIndex)}
+              mouseX={
+                getCardIsActive(activeCard, card) && pressed
+                  ? cursorState.mouseX
+                  : -1
+              }
+              mouseY={
+                getCardIsActive(activeCard, card) && pressed
+                  ? cursorState.mouseY
+                  : -1
+              }
+            />
+          )
+        })}
       </div>
-
-      <footer>
-        <button>One</button>
-        <button>Two</button>
-        <button>Three</button>
-      </footer>
     </div>
   )
 }
-
-export default App

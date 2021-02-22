@@ -1,5 +1,5 @@
 html {
-  font-size: 3.8vw;
+  font-size: 24px;
 }
 
 body {
@@ -35,12 +35,6 @@ header {
   margin: 20px;
 }
 
-footer {
-  display: flex;
-  justify-content: space-between;
-  margin: 20px;
-}
-
 .container {
   display: flex;
   flex: 1 1;
@@ -49,14 +43,14 @@ footer {
   flex-direction: column;
 }
 
-@media (max-width: 400px) {
-  html {
-    font-size: 12px;
-  }
+footer {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px;
+}
+
+@media (max-width: 700px) {
 }
 
 @media (min-width: 700px) {
-  html {
-    font-size: 24px;
-  }
 }

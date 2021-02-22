@@ -1,11 +1,7 @@
 import React from 'react'
 import { Motion, spring } from 'react-motion'
-import {
-  getCardPosition,
-  getCardSpacing,
-  useWindowEvent,
-  useForceUpdate,
-} from '../utils'
+import { getCardPosition, getCardSpacing } from './utils'
+import { useForceUpdate, useWindowEvent } from '../../utils'
 import debounce from 'lodash/debounce'
 const SUITS = ['spades', 'clubs', 'hearts', 'diamonds']
 
