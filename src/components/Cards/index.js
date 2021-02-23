@@ -1,30 +1,24 @@
-import React, { useState, useEffect, useRef } from 'react'
-
+import React, { useState, useRef } from 'react'
 import { useForceUpdate, useWindowEvent } from '../../utils'
 import debounce from 'lodash/debounce'
+import shuffle from 'lodash/shuffle'
 import { Motion, spring } from 'react-motion'
 import './card.css'
-import shuffle from 'lodash/shuffle'
-import chunk from 'lodash/chunk'
-import groupBy from 'lodash/groupBy'
 
-const SUITS = ['spades', 'clubs', 'hearts', 'diamonds']
+const BOARD_SIZE = 5
+const CARD_HEIGHT = 50
 const config = { stiffness: 200, damping: 20 }
 const initialState = { mouseY: 0, mouseX: 0 }
-const VALUES = '987654321abcdefghijklmnopqrstuvwxyz'
-const CARDS = VALUES.split('')
-  .map((n) => [
-    { value: Number(n), suit: 0 },
-    { value: Number(n), suit: 1 },
-    { value: Number(n), suit: 2 },
-    { value: Number(n), suit: 3 },
-    { value: Number(n), suit: 4 },
-  ])
+const VALUES = new Array(12).fill('').map((n, i) => i + 1)
+const CARDS = new Array(Math.ceil((BOARD_SIZE * BOARD_SIZE) / 12))
+  .fill(VALUES)
   .flat()
-  .slice(0, 144)
-const EMPTY_CARDS = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({
-  cardPileIndex: -1,
-  pileIndex: n,
+  .map((n) => [{ value: n }])
+  .flat()
+  .slice(0, BOARD_SIZE * BOARD_SIZE)
+
+const EMPTY_CARDS = new Array(BOARD_SIZE * BOARD_SIZE).fill('').map((n, i) => ({
+  index: i,
   isEmpty: true,
 }))
 
@@ -39,9 +33,7 @@ export const Cards = () => {
   const onMouseDown = ({ clientX, clientY }) => {
     let card = getCardFromPoint(clientX, clientY, cards)
 
-    if (!card) {
-      return setActiveCard(null)
-    }
+    if (!card) return setActiveCard(null)
 
     if (activeCard) {
       setCards(moveCard(cards, activeCard, card))
@@ -49,13 +41,12 @@ export const Cards = () => {
     } else if (!card.isActive && card.canMove) {
       setActiveCard(card)
     }
-    const mouseY = card.y
-    const mouseX = card.x
+
     startRef.current = { x: clientX, y: clientY }
     deltaRef.current = { x: clientX - card.x, y: clientY - card.y }
-    setPressed(true)
 
-    setCursorState({ mouseX, mouseY })
+    setPressed(true)
+    setCursorState({ mouseX: card.x, mouseY: card.y })
   }
 
   const onMouseMove = ({ clientY, clientX }) => {
@@ -74,12 +65,8 @@ export const Cards = () => {
 
     if (activeCard) {
       let clickedCard = getCardFromPoint(clientX, clientY, cards)
-      if (clickedCard) {
-        setCards(moveCard(cards, activeCard, clickedCard))
-      }
-      if (passedThreshold) {
-        setActiveCard(null)
-      }
+      if (clickedCard) setCards(moveCard(cards, activeCard, clickedCard))
+      if (passedThreshold) setActiveCard(null)
     }
   }
 
@@ -87,6 +74,7 @@ export const Cards = () => {
   useWindowEvent('pointerup', onMouseUp)
   useWindowEvent('pointerdown', onMouseDown)
   useWindowEvent('pointermove', onMouseMove)
+
   return (
     <div
       style={{
@@ -96,9 +84,15 @@ export const Cards = () => {
         alignItems: 'center',
       }}
     >
-      <div style={{ position: 'relative', width: '25rem', height: '25rem' }}>
-        {[0, 1, 2, 3, 4, 5].map((n) => (
-          <Card key={`pile-${n}`} card={EMPTY_CARDS[n]} />
+      <div
+        style={{
+          position: 'relative',
+          width: `${0.5 + BOARD_SIZE * 2}rem`,
+          height: `${0.5 + BOARD_SIZE * 2}rem`,
+        }}
+      >
+        {EMPTY_CARDS.map((n) => (
+          <Card key={`pile-${n.index}`} card={n} />
         ))}
 
         {cards.map((card, cardIndex) => {
@@ -131,23 +125,15 @@ const Card = React.memo(
     mouseY = -1,
   }) => {
     useWindowEvent('resize', debounce(useForceUpdate(), 500))
-    const { height, xBuffer, width } = getCardSpacing()
     const { x: xPos, y: yPos } = getCardPosition({ ...card, isFinished })
-
     const yOffset =
-      mouseX > -1
-        ? height * Math.abs(activeCard.cardPileIndex - card.cardPileIndex)
-        : 0
+      mouseX > -1 ? CARD_HEIGHT * Math.abs(activeCard.yIndex - card.yIndex) : 0
 
     const x = mouseX > -1 ? mouseX : spring(xPos, config)
     const y = mouseY > -1 ? mouseY + yOffset : spring(yPos, config)
     const r = spring(card.isCheat ? 17 : 0, config)
     const s = spring(isActive ? 1.185 : 1, config)
-    const zIndex = isFinished
-      ? -1
-      : mouseX > -1
-      ? 35 + card.cardPileIndex
-      : card.cardPileIndex
+    const zIndex = 10
 
     const classes = [
       'card',
@@ -156,7 +142,6 @@ const Card = React.memo(
       'can-move',
       isActive && 'disable-touch',
       card.isEmpty && 'empty',
-      SUITS[card.suit],
     ]
 
     return (
@@ -164,7 +149,6 @@ const Card = React.memo(
         {({ x, y, r, s }) => (
           <div
             data-index={card.index}
-            data-pileindex={card.pileIndex}
             className={classes.join(' ')}
             style={{
               transform: `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${s})`,
@@ -178,9 +162,9 @@ const Card = React.memo(
               style={{
                 position: 'absolute',
                 top: 0,
-                left: -xBuffer,
+                left: 0,
                 height: '160%',
-                width: width + xBuffer,
+                width: CARD_HEIGHT,
               }}
             />
           </div>
@@ -190,126 +174,20 @@ const Card = React.memo(
   },
 )
 
-const shuffleDeck = () =>
-  chunk(shuffle(CARDS), 12)
-    .map((pile, pileIndex) =>
-      pile.map((n, i) => ({
-        ...n,
-        cardPileIndex: i,
-        pileIndex,
-      })),
-    )
-    .flat()
-    .map((c, i) => ({ ...c, index: i }))
-
-const isDescending = (numbers) => {
-  return (
-    numbers.filter((number, index) => {
-      return numbers[index + 1] ? number === numbers[index + 1] + 1 : true
-    }).length === numbers.length
-  )
-}
+const shuffleDeck = () => shuffle(CARDS).map((n, index) => ({ ...n, index }))
 
 const moveCard = (cards, movedCard, destinationCard) => {
-  const sourcePile = getCardPile(movedCard, cards)
-  if (movedCard.isFinished || !destinationCard || destinationCard.isFinished) {
-    return cards
-  }
-
-  const numToMove = sourcePile.length - movedCard.cardPileIndex
-  const allowCheat =
-    numToMove === 1 && !movedCard.isCheat && !destinationCard.isCheat
-  const isCheat =
-    movedCard.value !== destinationCard.value - 1 && !destinationCard.isEmpty
-
-  const movingCards = sourcePile.slice(
-    movedCard.cardPileIndex,
-    movedCard.cardPileIndex + numToMove,
-  )
-
-  const validOrder =
-    destinationCard.isEmpty ||
-    (!destinationCard.isCheat &&
-      isDescending([destinationCard.value, ...movingCards.map((m) => m.value)]))
-
-  return cards.map((card) => {
-    if (
-      card.pileIndex !== movedCard.pileIndex ||
-      movedCard.pileIndex === destinationCard.pileIndex
-    ) {
-      return card
-    }
-
-    if (!movingCards.map((c) => c.index).includes(card.index)) {
-      return card
-    }
-
-    if (
-      (validOrder || allowCheat) &&
-      !Number.isNaN(destinationCard.pileIndex)
-    ) {
-      const cardPileIndex =
-        destinationCard.cardPileIndex +
-        movingCards.findIndex((c) => c.index === card.index) +
-        1
-
-      return {
-        ...card,
-        pileIndex: destinationCard.pileIndex,
-        cardPileIndex,
-        isCheat,
-      }
-    }
-
-    return card
-  })
-}
-
-const checkForFinishedPiles = (cards) => {
-  const piles = Object.values(
-    groupBy(cards, (card) => card.pileIndex),
-  ).map((pile) => pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex))
-
-  return piles
-    .map((pile) => ({
-      pile: pile.map((card) => card.value).join(''),
-      index: pile[0].pileIndex,
-    }))
-    .filter(({ pile }) => pile === '987654321')
-    .map((pile) => pile.index)
+  return cards
 }
 
 function getCardIsActive(activeCard, card) {
   let isActive = false
 
   if (activeCard) {
-    isActive =
-      activeCard.pileIndex === card.pileIndex &&
-      activeCard.cardPileIndex <= card.cardPileIndex
+    isActive = activeCard.index === card.index
   }
 
   return isActive
-}
-
-const getCardPile = (card, cards) => {
-  const pile = cards.filter((c) => c.pileIndex === card.pileIndex)
-  return pile.sort((a, b) => a.cardPileIndex - b.cardPileIndex)
-}
-
-const decorateCard = (card, cards) =>
-  card
-    ? {
-        ...card,
-        ...getCardPosition(card, getCardPile(card, cards).length),
-        canMove: getCanCardMove(card, cards),
-        isActive: getCardIsActive(card, cards),
-      }
-    : null
-
-const getCanCardMove = (card, cards) => {
-  const pile = getCardPile(card, cards)
-  const bottom = pile.map((c) => c.value).slice(card.cardPileIndex, pile.length)
-  return isDescending(bottom)
 }
 
 const getCardFromPoint = (x, y, cards) => {
@@ -319,43 +197,21 @@ const getCardFromPoint = (x, y, cards) => {
   if (elementUnder && elementUnder.parentElement) {
     const dataIndex = elementUnder.parentElement.dataset.index
 
-    if (dataIndex) {
-      card = cards[+dataIndex]
-    } else {
-      let emptyCard = {
-        cardPileIndex: -1,
-        pileIndex: +elementUnder.parentElement.dataset.pileindex,
-        isEmpty: true,
-      }
-      const pile = getCardPile(emptyCard, cards)
-
-      if (pile.length === 0) {
-        return { ...emptyCard, ...getCardPosition(emptyCard) }
-      }
-    }
+    if (dataIndex) card = cards[+dataIndex]
   }
 
-  return decorateCard(card, cards)
-}
-
-const getCardSpacing = () => {
-  // const outerWidth = clamp(document.documentElement.clientWidth, 740)
-  // const outerHeight = clamp(document.documentElement.clientHeight, 740)
-  const width = 50
-  let height = 50
-  const xBuffer = 0
-  let yBuffer = 0
-  return { width, height, yBuffer, xBuffer }
+  return card
+    ? {
+        ...card,
+        ...getCardPosition(card),
+        canMove: true,
+        isActive: false,
+      }
+    : null
 }
 
 const getCardPosition = (card) => {
-  const { width, height, yBuffer, xBuffer } = getCardSpacing()
-
-  const x = card.pileIndex * width + xBuffer
-
-  const y = card.isEmpty
-    ? yBuffer
-    : yBuffer + (card.isFinished ? 0 : card.cardPileIndex * height)
-
+  const x = (card.index % BOARD_SIZE) * CARD_HEIGHT
+  const y = Math.floor(card.index / BOARD_SIZE) * CARD_HEIGHT
   return { x, y }
 }
