@@ -43,6 +43,13 @@ header {
   flex-direction: column;
 }
 
+.cards-container {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 footer {
   display: flex;
   justify-content: space-between;

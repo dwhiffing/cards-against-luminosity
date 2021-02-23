@@ -22,112 +22,107 @@ const EMPTY_CARDS = new Array(BOARD_SIZE * BOARD_SIZE).fill('').map((n, i) => ({
   isEmpty: true,
 }))
 
+// TODO: need to make list/card behavior generic
+// should be able to have a list for board, deck and hand with different display components
+// however, they all share an interface allowing the cards to be dragged between eachother.etc
+
 export const Cards = () => {
   const [activeCard, setActiveCard] = useState(null)
-  const [cursorState, setCursorState] = useState(initialState)
-  const startRef = useRef({ x: 0, y: 0 })
-  const deltaRef = useRef({ x: 0, y: 0 })
-  const [pressed, setPressed] = useState(false)
-  const [cards, setCards] = useState(shuffleDeck())
+  const [hand, setHand] = useState(
+    shuffle(CARDS)
+      .map((n, index) => ({ ...n, index }))
+      .slice(0, 5)
+      .map((c) => ({ ...c, inHand: true })),
+  )
+  const [board, setBoard] = useState(EMPTY_CARDS)
+  const cards = { hand, board }
+  const { cursorState, pressed } = useMouse({
+    cards,
+    onMouseDown: ({ clientX, clientY }) => {
+      let handCard = getCardFromPoint(clientX, clientY, 'hand', cards)
+      let boardCard = getCardFromPoint(clientX, clientY, 'board', cards)
+      let card = handCard || boardCard
+      if (activeCard) {
+        let boardCard = getCardFromPoint(clientX, clientY, 'board', cards)
+        boardCard && moveCards(activeCard, boardCard)
+        setActiveCard(null)
+      } else if (card?.canMove && !card?.isEmpty) {
+        setActiveCard(card)
+      }
+    },
+    onMouseUp: ({ card }) => {
+      if (activeCard && card) {
+        moveCards(activeCard, card)
+      }
+    },
+  })
 
-  const onMouseDown = ({ clientX, clientY }) => {
-    let card = getCardFromPoint(clientX, clientY, cards)
-
-    if (!card) return setActiveCard(null)
-
-    if (activeCard) {
-      setCards(moveCard(cards, activeCard, card))
-      setActiveCard(null)
-    } else if (!getCardIsActive(activeCard, card) && card.canMove) {
-      setActiveCard(card)
-    }
-
-    startRef.current = { x: clientX, y: clientY }
-    deltaRef.current = { x: clientX - card.x, y: clientY - card.y }
-
-    setPressed(true)
-    setCursorState({ mouseX: card.x, mouseY: card.y })
-  }
-
-  const onMouseMove = ({ clientY, clientX }) => {
-    const mouseY = clientY - deltaRef.current.y
-    const mouseX = clientX - deltaRef.current.x
-    setCursorState({ mouseY, mouseX })
-  }
-
-  const onMouseUp = ({ clientX, clientY }) => {
-    const diffX = Math.abs(startRef.current.x - clientX)
-    const diffY = Math.abs(startRef.current.y - clientY)
-    const passedThreshold = diffX > 15 || diffY > 15
-
-    deltaRef.current = { x: 0, y: 0 }
-    setPressed(false)
-
-    if (activeCard) {
-      let clickedCard = getCardFromPoint(clientX, clientY, cards)
-      if (clickedCard) setCards(moveCard(cards, activeCard, clickedCard))
-      if (passedThreshold) setActiveCard(null)
-    }
+  const moveCards = (cardA, cardB) => {
+    // TODO: need this to be able to easily move cards between lists
+    setBoard((b) => [
+      ...b.slice(0, cardB.index),
+      { ...cardA, index: cardB.index, inHand: false },
+      ...b.slice(cardB.index + 1),
+    ])
+    setHand((h) => h.map((c) => (c?.index !== cardA?.index ? c : null)))
   }
 
   useWindowEvent('resize', debounce(useForceUpdate(), 500))
-  useWindowEvent('pointerup', onMouseUp)
-  useWindowEvent('pointerdown', onMouseDown)
-  useWindowEvent('pointermove', onMouseMove)
 
+  const size = 0.5 + BOARD_SIZE * 2
   return (
-    <div
-      style={{
-        flex: 1,
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-      }}
-    >
+    <div className="cards-container">
       <div
         style={{
           position: 'relative',
-          width: `${0.5 + BOARD_SIZE * 2}rem`,
-          height: `${0.5 + BOARD_SIZE * 2}rem`,
+          width: `${size}rem`,
+          height: `${size}rem`,
         }}
       >
-        {EMPTY_CARDS.map((n) => (
-          <Card key={`pile-${n.index}`} card={n} />
-        ))}
-
-        {cards.map((card, cardIndex) => {
-          const isActive = getCardIsActive(activeCard, card)
-
-          return (
-            <Card
-              key={`card-${cardIndex}`}
-              card={card}
-              isActive={isActive}
-              mouseX={isActive && pressed ? cursorState.mouseX : null}
-              mouseY={isActive && pressed ? cursorState.mouseY : null}
-            />
-          )
-        })}
+        <List
+          cards={cards.board}
+          activeCard={activeCard}
+          pressed={pressed}
+          cursorState={cursorState}
+        />
+        <List
+          cards={cards.hand}
+          activeCard={activeCard}
+          pressed={pressed}
+          cursorState={cursorState}
+        />
       </div>
     </div>
   )
 }
 
+const List = ({ cards, activeCard, pressed, cursorState }) => {
+  return cards.map((card, cardIndex) => {
+    if (!card) return null
+    const isActive = activeCard ? activeCard.index === card.index : false
+    const { x, y } = getCardPosition(card)
+
+    return (
+      <Card
+        key={`card-${cardIndex}`}
+        card={card}
+        isActive={isActive && !card.isEmpty}
+        x={isActive && pressed && !card.isEmpty ? cursorState.mouseX : x}
+        y={isActive && pressed && !card.isEmpty ? cursorState.mouseY : y}
+      />
+    )
+  })
+}
+
 const Card = React.memo(
-  ({ card, isActive, isFinished, onRest = () => {}, mouseX, mouseY }) => {
-    useWindowEvent('resize', debounce(useForceUpdate(), 500))
-    const { x: xPos, y: yPos } = getCardPosition({ ...card, isFinished })
-    const x = typeof mouseX === 'number' ? mouseX : spring(xPos, config)
-    const y = typeof mouseY === 'number' ? mouseY : spring(yPos, config)
+  ({ card, isActive, x: _x, y: _y, onRest = () => {} }) => {
+    const x = spring(_x, config)
+    const y = spring(_y, config)
     const r = spring(0, config)
     const s = spring(isActive ? 1.185 : 1, config)
-    const zIndex = 10
 
     const classes = [
-      'card',
-      `rank${card.value}`,
-      isFinished && 'finished',
-      'can-move',
+      `card can-move rank${card.value}`,
       isActive && 'disable-touch',
       card.isEmpty && 'empty',
     ]
@@ -140,7 +135,7 @@ const Card = React.memo(
             className={classes.join(' ')}
             style={{
               transform: `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${s})`,
-              zIndex,
+              zIndex: 10,
             }}
           >
             {/* <div className="face" /> */}
@@ -151,7 +146,7 @@ const Card = React.memo(
                 position: 'absolute',
                 top: 0,
                 left: 0,
-                height: '160%',
+                height: CARD_HEIGHT,
                 width: CARD_HEIGHT,
               }}
             />
@@ -162,32 +157,67 @@ const Card = React.memo(
   },
 )
 
-const shuffleDeck = () => shuffle(CARDS).map((n, index) => ({ ...n, index }))
-
-const moveCard = (cards, movedCard, destinationCard) => {
-  return cards
-}
-
-function getCardIsActive(activeCard, card) {
-  return activeCard ? activeCard.index === card.index : false
-}
-
-const getCardFromPoint = (x, y, cards) => {
+const getCardFromPoint = (x, y, tag, cards) => {
   const elementUnder = document.elementFromPoint(x, y)
+  const dataIndex = elementUnder?.parentElement?.dataset?.index
+  const card = cards[tag][+dataIndex]
 
-  if (!elementUnder?.parentElement?.dataset?.index) return null
-
-  const dataIndex = elementUnder.parentElement.dataset.index
+  if (!dataIndex || !card) return null
 
   return {
-    ...cards[+dataIndex],
-    ...getCardPosition(cards[+dataIndex]),
+    ...card,
+    ...getCardPosition(card),
     canMove: true,
   }
 }
 
 const getCardPosition = (card) => {
-  const x = (card.index % BOARD_SIZE) * CARD_HEIGHT
-  const y = Math.floor(card.index / BOARD_SIZE) * CARD_HEIGHT
+  let x = (card.index % BOARD_SIZE) * CARD_HEIGHT
+  let y = Math.floor(card.index / BOARD_SIZE) * CARD_HEIGHT
+  // TODO: Gross
+  if (card.inHand) y += 400
   return { x, y }
+}
+
+const useMouse = ({
+  cards,
+  onMouseDown: _onMouseDown,
+  onMouseUp: _onMouseUp,
+}) => {
+  const [cursorState, setCursorState] = useState(initialState)
+  const startRef = useRef({ x: 0, y: 0 })
+  const deltaRef = useRef({ x: 0, y: 0 })
+  const [pressed, setPressed] = useState(false)
+
+  const onMouseDown = ({ clientX, clientY }) => {
+    let card = getCardFromPoint(clientX, clientY, 'hand', cards)
+    _onMouseDown({ clientX, clientY })
+    setPressed(true)
+
+    startRef.current = { x: clientX, y: clientY }
+    if (card) {
+      deltaRef.current = { x: clientX - card.x, y: clientY - card.y }
+      setCursorState({ mouseX: card.x, mouseY: card.y })
+    }
+  }
+
+  const onMouseMove = ({ clientY, clientX }) => {
+    const mouseY = clientY - deltaRef.current.y
+    const mouseX = clientX - deltaRef.current.x
+    setCursorState({ mouseY, mouseX })
+  }
+
+  const onMouseUp = ({ clientX, clientY }) => {
+    deltaRef.current = { x: 0, y: 0 }
+    setPressed(false)
+
+    let card = getCardFromPoint(clientX, clientY, 'board', cards)
+    _onMouseUp({ clientX, clientY, card })
+  }
+
+  useWindowEvent('pointerup', onMouseUp)
+  useWindowEvent('pointerdown', onMouseDown)
+  useWindowEvent('pointermove', onMouseMove)
+
+  return { cursorState, pressed }
 }
