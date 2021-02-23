@@ -38,7 +38,7 @@ export const Cards = () => {
     if (activeCard) {
       setCards(moveCard(cards, activeCard, card))
       setActiveCard(null)
-    } else if (!card.isActive && card.canMove) {
+    } else if (!getCardIsActive(activeCard, card) && card.canMove) {
       setActiveCard(card)
     }
 
@@ -103,9 +103,8 @@ export const Cards = () => {
               key={`card-${cardIndex}`}
               card={card}
               isActive={isActive}
-              activeCard={activeCard}
-              mouseX={isActive && pressed ? cursorState.mouseX : -1}
-              mouseY={isActive && pressed ? cursorState.mouseY : -1}
+              mouseX={isActive && pressed ? cursorState.mouseX : null}
+              mouseY={isActive && pressed ? cursorState.mouseY : null}
             />
           )
         })}
@@ -115,23 +114,12 @@ export const Cards = () => {
 }
 
 const Card = React.memo(
-  ({
-    card,
-    activeCard,
-    isActive,
-    isFinished,
-    onRest = () => {},
-    mouseX = -1,
-    mouseY = -1,
-  }) => {
+  ({ card, isActive, isFinished, onRest = () => {}, mouseX, mouseY }) => {
     useWindowEvent('resize', debounce(useForceUpdate(), 500))
     const { x: xPos, y: yPos } = getCardPosition({ ...card, isFinished })
-    const yOffset =
-      mouseX > -1 ? CARD_HEIGHT * Math.abs(activeCard.yIndex - card.yIndex) : 0
-
-    const x = mouseX > -1 ? mouseX : spring(xPos, config)
-    const y = mouseY > -1 ? mouseY + yOffset : spring(yPos, config)
-    const r = spring(card.isCheat ? 17 : 0, config)
+    const x = typeof mouseX === 'number' ? mouseX : spring(xPos, config)
+    const y = typeof mouseY === 'number' ? mouseY : spring(yPos, config)
+    const r = spring(0, config)
     const s = spring(isActive ? 1.185 : 1, config)
     const zIndex = 10
 
@@ -181,33 +169,21 @@ const moveCard = (cards, movedCard, destinationCard) => {
 }
 
 function getCardIsActive(activeCard, card) {
-  let isActive = false
-
-  if (activeCard) {
-    isActive = activeCard.index === card.index
-  }
-
-  return isActive
+  return activeCard ? activeCard.index === card.index : false
 }
 
 const getCardFromPoint = (x, y, cards) => {
-  let card
   const elementUnder = document.elementFromPoint(x, y)
 
-  if (elementUnder && elementUnder.parentElement) {
-    const dataIndex = elementUnder.parentElement.dataset.index
+  if (!elementUnder?.parentElement?.dataset?.index) return null
 
-    if (dataIndex) card = cards[+dataIndex]
+  const dataIndex = elementUnder.parentElement.dataset.index
+
+  return {
+    ...cards[+dataIndex],
+    ...getCardPosition(cards[+dataIndex]),
+    canMove: true,
   }
-
-  return card
-    ? {
-        ...card,
-        ...getCardPosition(card),
-        canMove: true,
-        isActive: false,
-      }
-    : null
 }
 
 const getCardPosition = (card) => {
