@@ -1,21 +1,22 @@
 import React from 'react'
 import { Motion, spring } from 'react-motion'
-import { SUITS } from './index'
+
+const SUITS = '♥♠♣♦'.split('')
 
 export const Card = React.memo(({ card, isActive, x: _x, y: _y }) => {
   const config = { stiffness: 200, damping: 20 }
-  const x = card.value === -1 ? _x : spring(_x, config)
-  const y = card.value === -1 ? _y : spring(_y, config)
+  const x = card.value > -1 ? spring(_x, config) : _x
+  const y = card.value > -1 ? spring(_y, config) : _y
   const r = spring(0, config)
   const s = spring(isActive ? 1.185 : 1, config)
+  const o = spring(card.value > -1 ? 1 : 0, config)
   const suit = SUITS[card.suit]
   const classes = [
     `card can-move rank${card.value}`,
     isActive && 'disable-touch',
-    card.value === -1 && 'empty',
+    typeof card.value !== 'number' && 'empty',
     suit,
   ]
-  const o = spring(card.value === -1 ? 0 : 1, config)
 
   return (
     <Motion style={{ x, y, r, s, o }}>
@@ -28,7 +29,7 @@ export const Card = React.memo(({ card, isActive, x: _x, y: _y }) => {
           style={{
             transform: `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${s})`,
             backgroundColor: `rgba(255,255,255,${o})`,
-            zIndex: isActive ? 20 : 10,
+            zIndex: isActive ? 20 : typeof card.value !== 'number' ? 0 : 10,
           }}
         >
           {suit && <div className="face">{suit}</div>}
