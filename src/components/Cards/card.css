@@ -9,11 +9,12 @@
   box-shadow: 0 -0 5px rgba(0, 0, 0, 0.25);
   cursor: default;
 }
+
 .card.empty {
   background-color: transparent;
 }
-.card:before,
-.card:after {
+
+.card:before {
   position: absolute;
   font-size: 0.7rem;
   text-align: center;
@@ -21,40 +22,24 @@
   font-family: 'Ubuntu Condensed', sans-serif;
   width: 0.55rem;
   letter-spacing: -0.1rem;
-}
-.card:before {
   top: 0.2rem;
   left: 0.025rem;
   pointer-events: none;
 }
-.card:after {
-  bottom: 0.1rem;
-  right: 0.025rem;
-  pointer-events: none;
-  transform: rotate(180deg);
-}
-
-.card.finished:after,
-.card.finished:before {
-  opacity: 0;
-}
-
-.card.is-active {
-  background-color: khaki !important;
-}
-.card.is-cheat {
-  background-color: tomato;
-}
 
 .card .face {
-  height: 100%;
-  background-position: 50% 50%;
-  background-size: 100% 100%;
-  background-repeat: no-repeat;
+  position: absolute;
+  /* display: flex;
+  justify-content: center;
+  align-items: center; */
+  font-size: 14px;
+  bottom: 0rem;
+  right: 0.1rem;
 }
+
 .card .back {
   position: absolute;
-  background-image: url('faces/back.png');
+  background-image: url('back.png');
   background-position: 50% 50%;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -66,15 +51,11 @@
   transition: opacity 500ms;
 }
 
-.card.finished {
-  pointer-events: none;
-  box-shadow: none;
-}
-.card.finished .back {
+.card.hidden .back {
   opacity: 1;
 }
 
-.card.finished .face {
+.card.hidden .face {
   opacity: 0;
 }
 
@@ -82,66 +63,53 @@
   pointer-events: none;
   touch-action: none;
 }
-.card.spades,
-.card.clubs,
-.card.joker {
+
+.card.♠,
+.card.♣ {
   color: #000;
 }
-.card.hearts,
-.card.diamonds,
-.card.joker.rank3 {
+
+.card.♦,
+.card.♥ {
   color: #d40000;
 }
 
-.card.rank1:before,
-.card.rank1:after {
+.card.rank1:before {
   content: 'A';
 }
-.card.rank2:before,
-.card.rank2:after {
+.card.rank2:before {
   content: '2';
 }
-.card.rank3:before,
-.card.rank3:after {
+.card.rank3:before {
   content: '3';
 }
-.card.rank4:before,
-.card.rank4:after {
+.card.rank4:before {
   content: '4';
 }
-.card.rank5:before,
-.card.rank5:after {
+.card.rank5:before {
   content: '5';
 }
-.card.rank6:before,
-.card.rank6:after {
+.card.rank6:before {
   content: '6';
 }
-.card.rank7:before,
-.card.rank7:after {
+.card.rank7:before {
   content: '7';
 }
-.card.rank8:before,
-.card.rank8:after {
+.card.rank8:before {
   content: '8';
 }
-.card.rank9:before,
-.card.rank9:after {
+.card.rank9:before {
   content: '9';
 }
-.card.rank10:before,
-.card.rank10:after {
+.card.rank10:before {
   content: '10';
 }
-.card.rank11:before,
-.card.rank11:after {
+.card.rank11:before {
   content: 'J';
 }
-.card.rank12:before,
-.card.rank12:after {
+.card.rank12:before {
   content: 'Q';
 }
-.card.rank13:before,
-.card.rank13:after {
+.card.rank13:before {
   content: 'K';
 }
