@@ -10,10 +10,6 @@
   cursor: default;
 }
 
-.card.empty {
-  background-color: transparent;
-}
-
 .card:before {
   position: absolute;
   font-size: 0.7rem;
@@ -29,9 +25,6 @@
 
 .card .face {
   position: absolute;
-  /* display: flex;
-  justify-content: center;
-  align-items: center; */
   font-size: 14px;
   bottom: 0rem;
   right: 0.1rem;
