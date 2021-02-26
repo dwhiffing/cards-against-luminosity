@@ -13,8 +13,7 @@ export const Cards = () => {
     board: constants.NEW_BOARD,
   })
 
-  const onMouseUp = () => {}
-  const onMouseDown = ({ element }) => {
+  const onMove = ({ element }) => {
     const { list, index } = element.dataset
     if (!list) return setActiveCard(null)
 
@@ -26,7 +25,10 @@ export const Cards = () => {
     } else if (clicked.value > -1) setActiveCard(clicked)
   }
 
-  const { cursorState } = utils.useMouse({ onMouseUp, onMouseDown })
+  const { cursorState } = utils.useMouse({
+    onMouseUp: onMove,
+    onMouseDown: onMove,
+  })
   utils.useWindowEvent('resize', debounce(utils.useForceUpdate(), 500))
 
   const cards = Object.entries(state)
