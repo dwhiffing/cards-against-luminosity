@@ -127,6 +127,7 @@ export const scoreCards = (state) => {
     0: pointCards = [],
     1: multiCards = [],
     2: upgradeCards = [],
+    3: removeCards = [],
   } = cardGroups
 
   const applyEffect = (card, effect) => {
@@ -159,6 +160,20 @@ export const scoreCards = (state) => {
     },
     points: addCardScores(state, pointCards),
   }
+
+  removeCards.forEach((card) =>
+    applyEffect(card, (target) => {
+      state.cards = Object.entries({ ...state.cards }).reduce(
+        (obj, [k, v]) => ({
+          ...obj,
+          [k]: v.map((c) =>
+            c.id !== target.id ? c : { ...emptyCard, id: c.id },
+          ),
+        }),
+        {},
+      )
+    }),
+  )
 
   state = {
     ...discardBoard(state),
