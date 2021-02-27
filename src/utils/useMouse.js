@@ -17,7 +17,11 @@ export const useMouse = ({
     if (element.classList.contains('click')) element = element.parentElement
     startRef.current.x = clientX
     startRef.current.y = clientY
-    _onMouseDown({ clientX, clientY, element })
+    _onMouseDown({
+      clientX,
+      clientY,
+      element,
+    })
     setCursorState({ mouseX: clientX, mouseY: clientY })
   })
 

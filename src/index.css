@@ -67,3 +67,9 @@ footer {
   position: absolute;
   inset: 0;
 }
+.Overlay {
+  z-index: 99;
+  position: fixed;
+  inset: 0px;
+  background-color: rgba(0, 0, 0, 0.75);
+}

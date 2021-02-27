@@ -10,7 +10,7 @@ export const NEW_BOARD = new Array(BOARD_SIZE * BOARD_SIZE)
   .slice(0, BOARD_SIZE * BOARD_SIZE)
   .map(() => ({ id: uuid() }))
 
-export const CARDS = [1, 1, 2]
+export const CARDS = [1]
   .map((value) => [
     { value, color: 0, suit: 0, id: uuid() },
     { value, color: 1, suit: 0, id: uuid() },

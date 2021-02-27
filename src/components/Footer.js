@@ -1,7 +1,7 @@
 import React from 'react'
 import { COLORS } from './Cards/Card'
 
-export function Footer({ onSubmit, state }) {
+export function Footer({ onSubmit, onStore, state }) {
   return (
     <footer>
       <div
@@ -13,6 +13,9 @@ export function Footer({ onSubmit, state }) {
         }}
       >
         <button onClick={onSubmit}>Submit</button>
+        <button onClick={() => onStore(1)}>Red Store</button>
+        <button onClick={() => onStore(2)}>Green Store</button>
+        <button onClick={() => onStore(3)}>Blue Store</button>
       </div>
 
       <div

@@ -1,5 +1,6 @@
 export { useForceUpdate } from './useForceUpdate'
 export { useWindowEvent } from './useWindowEvent'
+export { useInterval } from './useInterval'
 export { useMouse } from './useMouse'
 
 export const swapCards = (state, a = {}, b = {}) => {
@@ -22,18 +23,32 @@ export const swapCards = (state, a = {}, b = {}) => {
   return result
 }
 
-export const moveCard = (state, source, destination, index = 0) => {
-  const card = [...(state.cards[source] || [])].find((c, i) => i === index)
-  const newSource = [...(state.cards[source] || [])].filter(
-    (c, i) => i !== index,
+export const moveCard = (
+  state,
+  source,
+  destination,
+  sourceIndex = 0,
+  destIndex = destination.length - 1,
+) => {
+  const card = [...(state.cards[source] || [])].find(
+    (c, i) => i === sourceIndex,
   )
+  const newSource = [...(state.cards[source] || [])].filter(
+    (c, i) => i !== sourceIndex,
+  )
+
+  const dest = state.cards[destination] || []
 
   return {
     ...state,
     cards: {
       ...state.cards,
       [source]: newSource,
-      [destination]: [...(state.cards[destination] || []), card],
+      [destination]: [
+        ...dest.slice(0, destIndex),
+        card,
+        ...dest.slice(destIndex),
+      ],
     },
   }
 }
@@ -66,5 +81,37 @@ export const scoreCards = (state) => {
 
         return sum
       }, state.points),
+  }
+}
+export const openStore = (state, n) => {
+  return {
+    ...state,
+    store: { ...state.store, open: n },
+  }
+}
+export const shuffleDiscard = (state) => {
+  return {
+    ...state,
+    cards: { ...state.cards, draw: state.cards.discard, discard: [] },
+  }
+}
+export const handleCounters = (state) => {
+  if (state.counters.draw === 0) {
+    if (state.cards.draw.length > 0) {
+      return {
+        ...moveCard(state, 'draw', 'hand'),
+        counters: { ...state.counters, draw: 3 },
+      }
+    } else {
+      return {
+        ...shuffleDiscard(state),
+        counters: { ...state.counters, draw: 3 },
+      }
+    }
+  } else {
+    return {
+      ...state,
+      counters: { ...state.counters, draw: state.counters.draw - 1 },
+    }
   }
 }
