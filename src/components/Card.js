@@ -4,33 +4,33 @@ import { Motion, spring } from 'react-motion'
 import { Arrows } from './Arrows'
 
 export const Card = React.memo(
-  ({ card, isActive, cursorState, style = {} }) => {
+  ({ card, handSize = 0, isActive, cursorState, style = {} }) => {
     const w = window.innerWidth / 2
     const h = window.innerHeight / 2
-
     let _x = 0,
       _y = 0
 
     if (card.list === 'hand') {
-      // TODO: should center hand properly
-      _x = w
-      _y = h
-      _x += (card.index % constants.BOARD_SIZE) * constants.CARD_HEIGHT
-      _y +=
-        Math.floor(card.index / constants.BOARD_SIZE) * constants.CARD_HEIGHT
+      _x = w - (handSize / 2) * constants.CARD_HEIGHT
+      _y = h / 0.8
+      _x += card.index * constants.CARD_HEIGHT
     }
 
     if (card.list === 'board') {
       _x = w - constants.BOARD_SIZE * 25
-      _y = h - constants.BOARD_SIZE * 50
+      _y = h / 3
       _x += (card.index % constants.BOARD_SIZE) * constants.CARD_HEIGHT
       _y +=
         Math.floor(card.index / constants.BOARD_SIZE) * constants.CARD_HEIGHT
     }
 
     if (card.list === 'draw') {
+      _x = w - 4 * constants.CARD_HEIGHT
+      _y = h / 0.8
     }
     if (card.list === 'discard') {
+      _x = w + 3 * constants.CARD_HEIGHT
+      _y = h / 0.8
     }
 
     _x = isActive ? cursorState.mouseX : _x

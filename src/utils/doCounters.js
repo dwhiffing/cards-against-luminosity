@@ -1,25 +1,42 @@
-import * as constants from '../constants'
+import * as utils from '../utils'
 import { moveCard } from './moveCard'
 
 export const doCounters = (state) => {
   if (state.counters.draw === 0) {
     if (state.cards.draw.length > 0) {
-      return {
-        ...moveCard(state, 'draw', 'hand'),
-        counters: { ...state.counters, draw: constants.DRAW_TIMER },
+      state = {
+        ...state,
+        counters: { ...state.counters, draw: state.limits.submit_time },
       }
+      if (state.cards.hand.length < state.limits.hand_size)
+        state = {
+          ...moveCard(state, 'draw', 'hand'),
+        }
     } else {
-      return {
+      state = {
         ...shuffleDiscard(state),
-        counters: { ...state.counters, draw: constants.DRAW_TIMER },
+        counters: { ...state.counters, draw: state.limits.submit_time },
       }
-    }
-  } else {
-    return {
-      ...state,
-      counters: { ...state.counters, draw: state.counters.draw - 1 },
     }
   }
+
+  if (state.counters.submit === 0) {
+    state = {
+      ...utils.scoreCards(state),
+      counters: { ...state.counters, submit: state.limits.submit_time },
+    }
+  }
+
+  state = {
+    ...state,
+    counters: {
+      ...state.counters,
+      submit: state.counters.submit - 1,
+      draw: state.counters.draw - 1,
+    },
+  }
+
+  return state
 }
 const shuffleDiscard = (state) => {
   return {

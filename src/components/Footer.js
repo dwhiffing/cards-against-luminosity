@@ -1,7 +1,6 @@
 import React from 'react'
-import { COLORS } from '../constants'
 
-export function Footer({ onSubmit, setModal, state }) {
+export function Footer({ setModal, state }) {
   return (
     <footer>
       <div
@@ -12,7 +11,6 @@ export function Footer({ onSubmit, setModal, state }) {
           justifyContent: 'center',
         }}
       >
-        <button onClick={onSubmit}>Submit</button>
         <button onClick={() => setModal({ name: 'store', type: 'red' })}>
           Red Store
         </button>
@@ -33,25 +31,8 @@ export function Footer({ onSubmit, setModal, state }) {
           justifyContent: 'center',
         }}
       >
-        <p>{state.counters.draw}</p>
-      </div>
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-      >
-        <p style={{ color: COLORS[1], margin: '0px 10px' }}>
-          {state.points.red}
-        </p>
-        <p style={{ color: COLORS[2], margin: '0px 10px' }}>
-          {state.points.green}
-        </p>
-        <p style={{ color: COLORS[3], margin: '0px 10px' }}>
-          {state.points.blue}
-        </p>
+        <p style={{ margin: 20 }}>{state.counters.draw}</p>
+        <p style={{ margin: 20 }}>{state.counters.submit}</p>
       </div>
     </footer>
   )

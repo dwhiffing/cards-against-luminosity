@@ -1,4 +1,3 @@
-import { v4 as uuid } from 'uuid'
 import { useEffect, useState, useRef } from 'react'
 import { swapCards } from './swapCards'
 

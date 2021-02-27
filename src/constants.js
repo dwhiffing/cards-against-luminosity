@@ -5,7 +5,6 @@ export const emptyCard = { value: undefined, id: null, direction: 0 }
 export const SUITS = '●×+✂↻✎'.split('')
 export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
 export const CARD_HEIGHT = 50
-export const DRAW_TIMER = 0
 export const BOARD_SIZE = 5
 
 export const getNewCard = ({
@@ -20,12 +19,6 @@ export const getNewCard = ({
   direction,
   id: uuid(),
 })
-
-export const CARDS = [
-  getNewCard({ value: 1, color: 1, suit: 0 }),
-  getNewCard({ value: 1, color: 2, suit: 0 }),
-  getNewCard({ value: 1, color: 3, suit: 0 }),
-]
 
 export const UPGRADES = {
   addRedCard: {
@@ -51,14 +44,33 @@ export const STORES = {
   blue: [UPGRADES.addBlueCard],
 }
 
+const CARDS = [
+  getNewCard({ value: 1, color: 1, suit: 0 }),
+  getNewCard({ value: 1, color: 1, suit: 0 }),
+  getNewCard({ value: 1, color: 1, suit: 0 }),
+  getNewCard({ value: 1, color: 2, suit: 0 }),
+  getNewCard({ value: 1, color: 2, suit: 0 }),
+  getNewCard({ value: 1, color: 2, suit: 0 }),
+  getNewCard({ value: 1, color: 3, suit: 0 }),
+  getNewCard({ value: 1, color: 3, suit: 0 }),
+  getNewCard({ value: 1, color: 3, suit: 0 }),
+]
 export const getInitialState = () => {
   const shuffled = shuffle(CARDS)
   return {
     store: {
       open: 0,
     },
+    limits: {
+      board_size: 1,
+      hand_size: 1,
+      draw_time: 5,
+      draw_count: 1,
+      submit_time: 10,
+    },
     counters: {
-      draw: DRAW_TIMER,
+      draw: 5,
+      submit: 10,
     },
     points: {
       red: 0,
