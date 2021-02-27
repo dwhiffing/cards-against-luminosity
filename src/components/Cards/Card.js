@@ -8,7 +8,7 @@ import {
 import { Motion, spring } from 'react-motion'
 import { Arrows } from './Arrows'
 
-export const SUITS = '●×+✂'.split('')
+export const SUITS = '●×+✂↻'.split('')
 export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
 
 export const Card = React.memo(

@@ -66,12 +66,14 @@ export const discardBoard = (state) => {
     cards: {
       ...state.cards,
       board: state.cards.board.map((c) =>
-        c.value > 0 ? { ...c, ...emptyCard } : c,
+        c.value > 0 && !c._hp
+          ? { ...c, ...emptyCard }
+          : { ...c, _hp: (c._hp || 1) - 1 },
       ),
       discard: [
         ...state.cards.discard,
         ...state.cards.board
-          .filter((c) => c.value > 0)
+          .filter((c) => c.value > 0 && !c._hp)
           .map((c) => ({ ...c, _value: undefined, index: undefined })),
       ],
     },
@@ -101,6 +103,7 @@ export const addCardScores = (state, cards) =>
 const getCardsInDirection = (cards, card) => {
   const p = card.index
   const s = constants.BOARD_SIZE
+  // TODO: implement diagonals
   const [t, r, b, l, tr, br, bl, tl] = getDirections(card.direction)
   let result = []
 
@@ -109,15 +112,9 @@ const getCardsInDirection = (cards, card) => {
   if (b) result.push(cards[p + s])
   if (l && p % s !== 0) result.push(cards[p - 1])
 
-  //1: -ROW_SIZE
-  //2: +1
-  //4: +ROW_SIZE
-  //8: -1
-
   return result.filter((c) => c?.value > 0)
 }
 export const scoreCards = (state) => {
-  // get all valid cards
   const scoredCards = state.cards.board
     .map((c, index) => ({ ...c, index, _value: c.value }))
     .filter((c) => c.value > 0)
@@ -128,6 +125,7 @@ export const scoreCards = (state) => {
     1: multiCards = [],
     2: upgradeCards = [],
     3: removeCards = [],
+    4: persistCards = [],
   } = cardGroups
 
   const applyEffect = (card, effect) => {
@@ -137,6 +135,12 @@ export const scoreCards = (state) => {
       effect(target)
     })
   }
+
+  persistCards.forEach((card) =>
+    applyEffect(card, (target) => {
+      target._hp = card.value
+    }),
+  )
 
   upgradeCards.forEach((card) =>
     applyEffect(card, (target) => {
