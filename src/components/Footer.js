@@ -32,6 +32,8 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setModal, state }) {
           justifyContent: 'center',
         }}
       >
+        <button onClick={onSave}>save</button>
+        <button onClick={onReset}>reset</button>
         <TimerButton
           cache={state.counters.draw_cache}
           time={state.counters.draw_time}

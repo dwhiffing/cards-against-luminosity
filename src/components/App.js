@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { debounce } from 'lodash'
 
 import { Card } from './Card'
@@ -9,14 +9,35 @@ import * as constants from '../constants'
 import * as utils from '../utils'
 
 const App = () => {
-  const [state, setState] = useState(constants.getInitialState())
+  const [state, setState] = useState(null)
+
   const onMouseDown = utils.useOnClick(state, setState)
   const { cursorState } = utils.useMouse(onMouseDown)
+
+  useEffect(() => {
+    utils.readFromStorage('save').then(({ save } = {}) => {
+      if (!!save) {
+        setState(save)
+      } else {
+        setState(constants.getInitialState())
+      }
+    })
+  }, [])
 
   const setModal = (modal) => setState((state) => ({ ...state, modal }))
 
   utils.useWindowEvent('resize', debounce(utils.useForceUpdate(), 500))
-  utils.useInterval(() => setState(utils.doCounters), 200)
+  utils.useInterval(() => setState(utils.doCounters), constants.TICK)
+  utils.useInterval(
+    () =>
+      setState((state) => {
+        utils.writeToStorage('save', state)
+        return state
+      }),
+    30000,
+  )
+
+  if (!state) return null
 
   const cards = Object.entries(state.cards)
     .map(([list, cards]) => cards.map((c, index) => ({ ...c, index, list })))
