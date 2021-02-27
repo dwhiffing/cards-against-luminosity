@@ -37,13 +37,13 @@ export function Footer({ onSubmit, onStore, state }) {
           justifyContent: 'center',
         }}
       >
-        <p style={{ color: COLORS[0], margin: '0px 10px' }}>
+        <p style={{ color: COLORS[1], margin: '0px 10px' }}>
           {state.points.red}
         </p>
-        <p style={{ color: COLORS[1], margin: '0px 10px' }}>
+        <p style={{ color: COLORS[2], margin: '0px 10px' }}>
           {state.points.green}
         </p>
-        <p style={{ color: COLORS[2], margin: '0px 10px' }}>
+        <p style={{ color: COLORS[3], margin: '0px 10px' }}>
           {state.points.blue}
         </p>
       </div>

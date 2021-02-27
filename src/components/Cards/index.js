@@ -83,7 +83,7 @@ const initialState = {
     open: 0,
   },
   counters: {
-    draw: 3,
+    draw: constants.DRAW_TIMER,
   },
   points: {
     red: 0,

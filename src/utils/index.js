@@ -1,5 +1,6 @@
+import { groupBy } from 'lodash'
 import { v4 as uuid } from 'uuid'
-
+import * as constants from './constants'
 export { useForceUpdate } from './useForceUpdate'
 export { useWindowEvent } from './useWindowEvent'
 export { useInterval } from './useInterval'
@@ -59,38 +60,90 @@ export const getDirections = (n = 0) => {
   return new Array(8).fill('').map((_, i) => (value >> i) & 0x1)
 }
 
-export const scoreCards = (state) => {
-  const scoredCards = state.cards.board.filter((c) => c.value > 0)
-  const board = state.cards.board.map((c) =>
-    c.value > 0 ? { ...c, value: undefined, id: null } : c,
-  )
-
+export const discardBoard = (state) => {
   return {
     ...state,
     cards: {
       ...state.cards,
-      board,
-      discard: [...state.cards.discard, ...scoredCards],
-    },
-    points: state.cards.board
-      .filter((c) => c.value > 0)
-      .reduce(
-        (sum, current) => {
-          if (current.color === 0) {
-            sum.red += current.value
-          }
-          if (current.color === 1) {
-            sum.green += current.value
-          }
-          if (current.color === 2) {
-            sum.blue += current.value
-          }
-
-          return sum
-        },
-        { ...state.points },
+      board: state.cards.board.map((c) =>
+        c.value > 0 ? { ...c, ...emptyCard } : c,
       ),
+      discard: [
+        ...state.cards.discard,
+        ...state.cards.board.filter((c) => c.value > 0),
+      ],
+    },
   }
+}
+
+export const addCardScores = (state, cards) =>
+  cards.reduce(
+    (sum, current) => {
+      if (current.color === 1) {
+        sum.red += current._value
+      }
+      if (current.color === 2) {
+        sum.green += current._value
+      }
+      if (current.color === 3) {
+        sum.blue += current._value
+      }
+
+      return sum
+    },
+    { ...state.points },
+  )
+
+// TODO: should change scoring system to apply cards in order based on suit
+// ie, first all of the highest suit are resolved in order, repeat down to the lowest
+const getCardsInDirection = (cards, card) => {
+  const p = card.index
+  const s = constants.BOARD_SIZE
+  const [t, r, b, l, tr, br, bl, tl] = getDirections(card.direction)
+  let result = []
+
+  if (t) result.push(cards[p - s])
+  if (r && p % s !== s - 1) result.push(cards[p + 1])
+  if (b) result.push(cards[p + s])
+  if (l && p % s !== 0) result.push(cards[p - 1])
+
+  //1: -ROW_SIZE
+  //2: +1
+  //4: +ROW_SIZE
+  //8: -1
+
+  return result.filter((c) => c?.value > 0)
+}
+export const scoreCards = (state) => {
+  // get all valid cards
+  const scoredCards = state.cards.board
+    .map((c, index) => ({ ...c, index, _value: c.value }))
+    .filter((c) => c.value > 0)
+  // group them by suit
+  // for each card in group
+  // get cards in card direction
+  // apply card effect to cards
+  const cardGroups = groupBy(scoredCards, (c) => c.suit)
+  let { 0: pointCards = [], 1: multiCards = [] } = cardGroups
+
+  multiCards.forEach((card) => {
+    const effectedCards = getCardsInDirection(state.cards.board, card)
+    effectedCards.forEach((c) => {
+      const target = pointCards.find((pc) => c.id === pc.id)
+      target._value *= card.value
+    })
+  })
+
+  state = {
+    ...state,
+    points: addCardScores(state, pointCards),
+  }
+
+  state = {
+    ...discardBoard(state),
+  }
+
+  return state
 }
 export const openStore = (state, n) => {
   return {
@@ -148,12 +201,12 @@ export const handleCounters = (state) => {
     if (state.cards.draw.length > 0) {
       return {
         ...moveCard(state, 'draw', 'hand'),
-        counters: { ...state.counters, draw: 3 },
+        counters: { ...state.counters, draw: constants.DRAW_TIMER },
       }
     } else {
       return {
         ...shuffleDiscard(state),
-        counters: { ...state.counters, draw: 3 },
+        counters: { ...state.counters, draw: constants.DRAW_TIMER },
       }
     }
   } else {
@@ -176,3 +229,5 @@ export const getNewCard = ({
   direction,
   id: uuid(),
 })
+
+const emptyCard = { value: undefined, id: null, direction: 0 }
