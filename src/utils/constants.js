@@ -17,4 +17,5 @@ export const CARDS = [
   getNewCard({ value: 3, color: 2, suit: 0 }),
   getNewCard({ value: 3, color: 3, suit: 0 }),
   getNewCard({ value: 2, color: 0, suit: 1, direction: 15 }),
+  getNewCard({ value: 2, color: 0, suit: 2, direction: 15 }),
 ]

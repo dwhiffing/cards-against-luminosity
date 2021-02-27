@@ -70,7 +70,9 @@ export const discardBoard = (state) => {
       ),
       discard: [
         ...state.cards.discard,
-        ...state.cards.board.filter((c) => c.value > 0),
+        ...state.cards.board
+          .filter((c) => c.value > 0)
+          .map((c) => ({ ...c, _value: undefined, index: undefined })),
       ],
     },
   }
@@ -119,23 +121,42 @@ export const scoreCards = (state) => {
   const scoredCards = state.cards.board
     .map((c, index) => ({ ...c, index, _value: c.value }))
     .filter((c) => c.value > 0)
-  // group them by suit
-  // for each card in group
-  // get cards in card direction
-  // apply card effect to cards
-  const cardGroups = groupBy(scoredCards, (c) => c.suit)
-  let { 0: pointCards = [], 1: multiCards = [] } = cardGroups
 
-  multiCards.forEach((card) => {
+  const cardGroups = groupBy(scoredCards, (c) => c.suit)
+  let {
+    0: pointCards = [],
+    1: multiCards = [],
+    2: upgradeCards = [],
+  } = cardGroups
+
+  const applyEffect = (card, effect) => {
     const effectedCards = getCardsInDirection(state.cards.board, card)
     effectedCards.forEach((c) => {
       const target = pointCards.find((pc) => c.id === pc.id)
-      target._value *= card.value
+      effect(target)
     })
-  })
+  }
+
+  upgradeCards.forEach((card) =>
+    applyEffect(card, (target) => {
+      target.value += card.value
+    }),
+  )
+
+  multiCards.forEach((card) =>
+    applyEffect(card, (target) => {
+      target._value *= card.value
+    }),
+  )
 
   state = {
     ...state,
+    cards: {
+      ...state.cards,
+      board: state.cards.board.map(
+        (c) => pointCards.find((pc) => pc.id === c.id) || c,
+      ),
+    },
     points: addCardScores(state, pointCards),
   }
 

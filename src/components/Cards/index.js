@@ -28,13 +28,14 @@ export const Cards = () => {
       return setActiveCard(null)
     }
 
-    const clicked = { list, index, ...state.cards[list][+index] }
+    const clicked = { ...state.cards[list][+index], list, index: +index }
 
     if (activeCard) {
       setState((state) => utils.swapCards(state, clicked, activeCard))
       setActiveCard(null)
     } else if (clicked.value > -1) {
       lastClickRef.current = +new Date()
+
       setActiveCard(clicked)
     }
   }
