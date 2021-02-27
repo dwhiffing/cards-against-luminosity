@@ -30,6 +30,13 @@
   right: 0.1rem;
 }
 
+.card .hp {
+  position: absolute;
+  font-size: 0.55rem;
+  top: 0.1rem;
+  right: 0.1rem;
+}
+
 .card .back {
   position: absolute;
   background-image: url('back.png');

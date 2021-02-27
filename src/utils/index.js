@@ -31,7 +31,7 @@ export const moveCard = (
   source,
   destination,
   sourceIndex = 0,
-  destIndex = destination.length - 1,
+  destIndex = destination.length,
 ) => {
   const card = [...(state.cards[source] || [])].find(
     (c, i) => i === sourceIndex,
@@ -74,7 +74,12 @@ export const discardBoard = (state) => {
         ...state.cards.discard,
         ...state.cards.board
           .filter((c) => c.value > 0 && !c._hp)
-          .map((c) => ({ ...c, _value: undefined, index: undefined })),
+          .map((c) => ({
+            ...c,
+            _value: undefined,
+            _color: undefined,
+            index: undefined,
+          })),
       ],
     },
   }
@@ -83,13 +88,13 @@ export const discardBoard = (state) => {
 export const addCardScores = (state, cards) =>
   cards.reduce(
     (sum, current) => {
-      if (current.color === 1) {
+      if (current._color === 1) {
         sum.red += current._value
       }
-      if (current.color === 2) {
+      if (current._color === 2) {
         sum.green += current._value
       }
-      if (current.color === 3) {
+      if (current._color === 3) {
         sum.blue += current._value
       }
 
@@ -116,7 +121,7 @@ const getCardsInDirection = (cards, card) => {
 }
 export const scoreCards = (state) => {
   const scoredCards = state.cards.board
-    .map((c, index) => ({ ...c, index, _value: c.value }))
+    .map((c, index) => ({ ...c, index, _value: c.value, _color: c.color }))
     .filter((c) => c.value > 0)
 
   const cardGroups = groupBy(scoredCards, (c) => c.suit)
@@ -126,6 +131,7 @@ export const scoreCards = (state) => {
     2: upgradeCards = [],
     3: removeCards = [],
     4: persistCards = [],
+    5: convertCards = [],
   } = cardGroups
 
   const applyEffect = (card, effect) => {
@@ -139,6 +145,12 @@ export const scoreCards = (state) => {
   persistCards.forEach((card) =>
     applyEffect(card, (target) => {
       target._hp = card.value
+    }),
+  )
+
+  convertCards.forEach((card) =>
+    applyEffect(card, (target) => {
+      target._color = card.color
     }),
   )
 

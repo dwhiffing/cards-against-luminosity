@@ -8,7 +8,7 @@ import {
 import { Motion, spring } from 'react-motion'
 import { Arrows } from './Arrows'
 
-export const SUITS = '●×+✂↻'.split('')
+export const SUITS = '●×+✂↻✎'.split('')
 export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
 
 export const Card = React.memo(
@@ -51,7 +51,7 @@ export const Card = React.memo(
     const s = spring(isActive ? 1.185 : 1, config)
     const o = spring(card.value > -1 ? 1 : 0, config)
     const suit = SUITS[card.suit]
-    const color = COLORS[card.color]
+    const color = COLORS[card._color || card.color]
     const classes = [
       `card can-move rank${card.value}`,
       isHidden && 'hidden',
@@ -82,6 +82,9 @@ export const Card = React.memo(
             {typeof card.value === 'number' && suit && (
               <div className="face">{suit}</div>
             )}
+            {card._hp && card._hp > 0 ? (
+              <div className="hp">{card._hp}</div>
+            ) : null}
             {card.direction > 0 && <Arrows direction={card.direction} />}
             <div className="back" />
             <div className="click" />
