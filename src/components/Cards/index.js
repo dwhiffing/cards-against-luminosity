@@ -8,7 +8,6 @@ import { Header } from '../Header'
 import './card.css'
 import { debounce } from 'lodash'
 import { Store } from '../Store'
-import { Deck } from '../Deck'
 
 export const Cards = () => {
   const [activeCard, setActiveCard] = useState(null)
@@ -59,12 +58,12 @@ export const Cards = () => {
       <Store state={state} setState={setState} onClose={() => onStore(0)} />
 
       <div className="cards-container">
-        {cards.map(({ id, list, index, value, suit, color }) => {
-          const isActive = activeCard?.id === id && value > -1
+        {cards.map((card) => {
+          const isActive = activeCard?.id === card.id && card.value > -1
           return (
             <Card
-              key={id || 'empty' + index}
-              card={{ list, index, value, suit, color }}
+              key={card.id || 'empty' + card.index}
+              card={card}
               isActive={isActive}
               cursorState={cursorState}
             />

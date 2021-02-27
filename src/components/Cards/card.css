@@ -12,14 +12,14 @@
 
 .card:before {
   position: absolute;
-  font-size: 0.7rem;
+  font-size: 0.55rem;
   text-align: center;
   line-height: 0.7rem;
   font-family: 'Ubuntu Condensed', sans-serif;
   width: 0.55rem;
   letter-spacing: -0.1rem;
-  top: 0.2rem;
-  left: 0.025rem;
+  top: 0.1rem;
+  left: 0rem;
   pointer-events: none;
 }
 

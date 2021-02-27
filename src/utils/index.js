@@ -54,6 +54,10 @@ export const moveCard = (
     },
   }
 }
+export const getDirections = (n = 0) => {
+  let value = n
+  return new Array(8).fill('').map((_, i) => (value >> i) & 0x1)
+}
 
 export const scoreCards = (state) => {
   const scoredCards = state.cards.board.filter((c) => c.value > 0)
@@ -160,9 +164,15 @@ export const handleCounters = (state) => {
   }
 }
 
-const getNewCard = ({ value = 1, color = 0, suit = 0 } = {}) => ({
+export const getNewCard = ({
+  value = 1,
+  color = 0,
+  suit = 0,
+  direction = 0,
+} = {}) => ({
   value,
   color,
   suit,
+  direction,
   id: uuid(),
 })

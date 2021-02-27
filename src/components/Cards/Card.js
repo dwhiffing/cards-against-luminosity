@@ -6,8 +6,9 @@ import {
   OFFSET_Y,
 } from '../../utils/constants'
 import { Motion, spring } from 'react-motion'
+import { Arrows } from './Arrows'
 
-export const SUITS = '♥♠♣♦'.split('')
+export const SUITS = '●×+⚜✂'.split('')
 export const COLORS = ['#d40000', '#33bb55', '#3322aa']
 
 export const Card = React.memo(
@@ -72,12 +73,16 @@ export const Card = React.memo(
               backgroundColor: `rgba(255,255,255,${o})`,
               zIndex: isActive ? 20 : typeof card.value !== 'number' ? 0 : 10,
               color,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
               ...style,
             }}
           >
             {typeof card.value === 'number' && suit && (
               <div className="face">{suit}</div>
             )}
+            {card.direction > 0 && <Arrows direction={card.direction} />}
             <div className="back" />
             <div className="click" />
           </div>
