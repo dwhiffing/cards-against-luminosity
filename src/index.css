@@ -51,6 +51,124 @@ header {
   align-items: center;
 }
 
+.Overlay {
+  z-index: 99;
+  position: fixed;
+  inset: 0px;
+  background-color: rgba(0, 0, 0, 0.75);
+}
+
+.card {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2rem;
+  height: 2rem;
+  background-color: #fff;
+  border-radius: 0.2rem;
+  box-shadow: 0 -0 5px rgba(0, 0, 0, 0.25);
+  cursor: default;
+}
+
+.card:before {
+  position: absolute;
+  font-size: 0.55rem;
+  text-align: center;
+  line-height: 0.7rem;
+  font-family: 'Ubuntu Condensed', sans-serif;
+  width: 0.55rem;
+  letter-spacing: -0.1rem;
+  top: 0.1rem;
+  left: 0rem;
+  pointer-events: none;
+}
+
+.card .face {
+  position: absolute;
+  font-size: 14px;
+  bottom: 0rem;
+  right: 0.1rem;
+}
+
+.card .hp {
+  position: absolute;
+  font-size: 0.55rem;
+  top: 0.1rem;
+  right: 0.1rem;
+}
+
+.card .back {
+  position: absolute;
+  background-image: url('assets/back.png');
+  background-position: 50% 50%;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 500ms;
+}
+
+.card .click {
+  position: absolute;
+  inset: 0;
+}
+
+.card.hidden .back {
+  opacity: 1;
+}
+
+.card.hidden .face {
+  opacity: 0;
+}
+
+.disable-touch {
+  pointer-events: none;
+  touch-action: none;
+}
+
+.card.rank1:before {
+  content: '1';
+}
+.card.rank2:before {
+  content: '2';
+}
+.card.rank3:before {
+  content: '3';
+}
+.card.rank4:before {
+  content: '4';
+}
+.card.rank5:before {
+  content: '5';
+}
+.card.rank6:before {
+  content: '6';
+}
+.card.rank7:before {
+  content: '7';
+}
+.card.rank8:before {
+  content: '8';
+}
+.card.rank9:before {
+  content: '9';
+}
+.card.rank10:before {
+  content: '10';
+}
+.card.rank11:before {
+  content: '11';
+}
+.card.rank12:before {
+  content: '12';
+}
+.card.rank13:before {
+  content: '13';
+}
+
 footer {
   display: flex;
   justify-content: space-between;
@@ -61,15 +179,4 @@ footer {
 }
 
 @media (min-width: 700px) {
-}
-
-.click {
-  position: absolute;
-  inset: 0;
-}
-.Overlay {
-  z-index: 99;
-  position: fixed;
-  inset: 0px;
-  background-color: rgba(0, 0, 0, 0.75);
 }

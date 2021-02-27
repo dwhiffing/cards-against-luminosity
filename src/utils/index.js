@@ -1,285 +1,48 @@
-import { groupBy } from 'lodash'
 import { v4 as uuid } from 'uuid'
-import * as constants from './constants'
-export { useForceUpdate } from './useForceUpdate'
-export { useWindowEvent } from './useWindowEvent'
-export { useInterval } from './useInterval'
-export { useMouse } from './useMouse'
+import { useEffect, useState, useRef } from 'react'
+import { swapCards } from './swapCards'
 
-export const swapCards = (state, a = {}, b = {}) => {
-  const { list: l1, index: i1, ...s1 } = a
-  const { list: l2, index: i2, ...s2 } = b
+export { useOnClick, useMouse } from './useMouse'
+export { scoreCards } from './scoreCards'
+export { moveCard } from './moveCard'
+export { swapCards } from './swapCards'
+export { getCanAfford, doPurchase } from './doPurchase'
+export { doCounters } from './doCounters'
 
-  let result = {
-    ...state,
-    cards: {
-      ...state.cards,
-      [l1]: (state.cards[l1] || []).map((c, i) => (i === +i1 ? s2 : c)),
-      [l2]: (state.cards[l2] || []).map((c, i) =>
-        i === +i2 ? s1 : l1 === l2 && i === +i1 ? s2 : c,
-      ),
-    },
-  }
-
-  result.cards.hand = result.cards.hand.filter((c) => !!c.value)
-
-  return result
+export const useForceUpdate = () => {
+  const [, setValue] = useState(0)
+  return () => setValue((value) => ++value)
 }
 
-export const moveCard = (
-  state,
-  source,
-  destination,
-  sourceIndex = 0,
-  destIndex = destination.length,
-) => {
-  const card = [...(state.cards[source] || [])].find(
-    (c, i) => i === sourceIndex,
-  )
-  const newSource = [...(state.cards[source] || [])].filter(
-    (c, i) => i !== sourceIndex,
-  )
-
-  const dest = state.cards[destination] || []
-
-  return {
-    ...state,
-    cards: {
-      ...state.cards,
-      [source]: newSource,
-      [destination]: [
-        ...dest.slice(0, destIndex),
-        card,
-        ...dest.slice(destIndex),
-      ],
-    },
-  }
+export const useWindowEvent = (event, callback) => {
+  useEffect(() => {
+    window.addEventListener(event, callback)
+    return () => window.removeEventListener(event, callback)
+  }, [event, callback])
 }
+
+export function useInterval(callback, delay) {
+  const savedCallback = useRef()
+
+  useEffect(() => {
+    savedCallback.current = callback
+  })
+
+  useEffect(() => {
+    function tick() {
+      savedCallback.current()
+    }
+    let id = setInterval(tick, delay)
+    return () => clearInterval(id)
+  }, [delay])
+}
+
 export const getDirections = (n = 0) => {
   let value = n
   return new Array(8).fill('').map((_, i) => (value >> i) & 0x1)
 }
 
-export const discardBoard = (state) => {
-  return {
-    ...state,
-    cards: {
-      ...state.cards,
-      board: state.cards.board.map((c) =>
-        c.value > 0 && !c._hp
-          ? { ...c, ...emptyCard }
-          : { ...c, _hp: (c._hp || 1) - 1 },
-      ),
-      discard: [
-        ...state.cards.discard,
-        ...state.cards.board
-          .filter((c) => c.value > 0 && !c._hp)
-          .map((c) => ({
-            ...c,
-            _value: undefined,
-            _color: undefined,
-            index: undefined,
-          })),
-      ],
-    },
-  }
+export const autoplayCard = (state, card) => {
+  const index = state.cards.board.findIndex((c) => !c.value)
+  return swapCards(state, { list: 'board', index }, card)
 }
-
-export const addCardScores = (state, cards) =>
-  cards.reduce(
-    (sum, current) => {
-      if (current._color === 1) {
-        sum.red += current._value
-      }
-      if (current._color === 2) {
-        sum.green += current._value
-      }
-      if (current._color === 3) {
-        sum.blue += current._value
-      }
-
-      return sum
-    },
-    { ...state.points },
-  )
-
-// TODO: should change scoring system to apply cards in order based on suit
-// ie, first all of the highest suit are resolved in order, repeat down to the lowest
-const getCardsInDirection = (cards, card) => {
-  const p = card.index
-  const s = constants.BOARD_SIZE
-  // TODO: implement diagonals
-  const [t, r, b, l, tr, br, bl, tl] = getDirections(card.direction)
-  let result = []
-
-  if (t) result.push(cards[p - s])
-  if (r && p % s !== s - 1) result.push(cards[p + 1])
-  if (b) result.push(cards[p + s])
-  if (l && p % s !== 0) result.push(cards[p - 1])
-
-  return result.filter((c) => c?.value > 0)
-}
-export const scoreCards = (state) => {
-  const scoredCards = state.cards.board
-    .map((c, index) => ({ ...c, index, _value: c.value, _color: c.color }))
-    .filter((c) => c.value > 0)
-
-  const cardGroups = groupBy(scoredCards, (c) => c.suit)
-  let {
-    0: pointCards = [],
-    1: multiCards = [],
-    2: upgradeCards = [],
-    3: removeCards = [],
-    4: persistCards = [],
-    5: convertCards = [],
-  } = cardGroups
-
-  const applyEffect = (card, effect) => {
-    const effectedCards = getCardsInDirection(state.cards.board, card)
-    effectedCards.forEach((c) => {
-      const target = pointCards.find((pc) => c.id === pc.id)
-      effect(target)
-    })
-  }
-
-  persistCards.forEach((card) =>
-    applyEffect(card, (target) => {
-      target._hp = card.value
-    }),
-  )
-
-  convertCards.forEach((card) =>
-    applyEffect(card, (target) => {
-      target._color = card.color
-    }),
-  )
-
-  upgradeCards.forEach((card) =>
-    applyEffect(card, (target) => {
-      target.value += card.value
-    }),
-  )
-
-  multiCards.forEach((card) =>
-    applyEffect(card, (target) => {
-      target._value *= card.value
-    }),
-  )
-
-  state = {
-    ...state,
-    cards: {
-      ...state.cards,
-      board: state.cards.board.map(
-        (c) => pointCards.find((pc) => pc.id === c.id) || c,
-      ),
-    },
-    points: addCardScores(state, pointCards),
-  }
-
-  removeCards.forEach((card) =>
-    applyEffect(card, (target) => {
-      state.cards = Object.entries({ ...state.cards }).reduce(
-        (obj, [k, v]) => ({
-          ...obj,
-          [k]: v.map((c) =>
-            c.id !== target.id ? c : { ...emptyCard, id: c.id },
-          ),
-        }),
-        {},
-      )
-    }),
-  )
-
-  state = {
-    ...discardBoard(state),
-  }
-
-  return state
-}
-export const openStore = (state, n) => {
-  return {
-    ...state,
-    store: { ...state.store, open: n },
-  }
-}
-export const shuffleDiscard = (state) => {
-  return {
-    ...state,
-    cards: { ...state.cards, draw: state.cards.discard, discard: [] },
-  }
-}
-export const doPurchase = (state, purchase) => {
-  let points = Object.entries(purchase.cost).reduce(
-    (sum, [k, v]) => ({ ...sum, [k]: sum[k] - v }),
-    { ...state.points },
-  )
-  let cards = state.cards
-
-  if (purchase.effect.type === 'add-card') {
-    cards.discard = cards.discard.concat([getNewCard(purchase.effect.params)])
-  }
-
-  if (purchase.effect.type === 'remove-card') {
-    cards = Object.entries({ ...cards }).reduce(
-      (obj, [k, v]) => ({
-        ...obj,
-        [k]: v.filter((c) => c.id !== purchase.effect.params.id),
-      }),
-      {},
-    )
-  }
-
-  if (purchase.effect.type === 'upgrade-card') {
-    cards = Object.entries({ ...cards }).reduce(
-      (obj, [k, v]) => ({
-        ...obj,
-        [k]: v.map((c) =>
-          c.id === purchase.effect.params.id ? { ...c, value: c.value + 1 } : c,
-        ),
-      }),
-      {},
-    )
-  }
-
-  return {
-    ...state,
-    cards,
-    points,
-  }
-}
-export const handleCounters = (state) => {
-  if (state.counters.draw === 0) {
-    if (state.cards.draw.length > 0) {
-      return {
-        ...moveCard(state, 'draw', 'hand'),
-        counters: { ...state.counters, draw: constants.DRAW_TIMER },
-      }
-    } else {
-      return {
-        ...shuffleDiscard(state),
-        counters: { ...state.counters, draw: constants.DRAW_TIMER },
-      }
-    }
-  } else {
-    return {
-      ...state,
-      counters: { ...state.counters, draw: state.counters.draw - 1 },
-    }
-  }
-}
-
-export const getNewCard = ({
-  value = 1,
-  color = 0,
-  suit = 0,
-  direction = 0,
-} = {}) => ({
-  value,
-  color,
-  suit,
-  direction,
-  id: uuid(),
-})
-
-const emptyCard = { value: undefined, id: null, direction: 0 }

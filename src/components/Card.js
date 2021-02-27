@@ -1,15 +1,7 @@
 import React from 'react'
-import {
-  BOARD_SIZE,
-  CARD_HEIGHT,
-  OFFSET_X,
-  OFFSET_Y,
-} from '../../utils/constants'
+import * as constants from '../constants'
 import { Motion, spring } from 'react-motion'
 import { Arrows } from './Arrows'
-
-export const SUITS = '●×+✂↻✎'.split('')
-export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
 
 export const Card = React.memo(
   ({ card, isActive, cursorState, style = {} }) => {
@@ -18,31 +10,31 @@ export const Card = React.memo(
 
     let _x = 0,
       _y = 0
+
     if (card.list === 'hand') {
-      _y = 200
+      // TODO: should center hand properly
+      _x = w
+      _y = h
+      _x += (card.index % constants.BOARD_SIZE) * constants.CARD_HEIGHT
+      _y +=
+        Math.floor(card.index / constants.BOARD_SIZE) * constants.CARD_HEIGHT
     }
+
+    if (card.list === 'board') {
+      _x = w - constants.BOARD_SIZE * 25
+      _y = h - constants.BOARD_SIZE * 50
+      _x += (card.index % constants.BOARD_SIZE) * constants.CARD_HEIGHT
+      _y +=
+        Math.floor(card.index / constants.BOARD_SIZE) * constants.CARD_HEIGHT
+    }
+
     if (card.list === 'draw') {
-      _x = 150
-      _y = 10
     }
     if (card.list === 'discard') {
-      _x = 150
-      _y = 50
     }
 
-    const isPile = card.list === 'draw' || card.list === 'discard'
-    const isHidden = card.list === 'draw'
-
-    _x += w - OFFSET_X + _x
-    _y += h - OFFSET_Y + _y
-
-    if (!isPile) {
-      _x += (card.index % BOARD_SIZE) * CARD_HEIGHT
-      _y += Math.floor(card.index / BOARD_SIZE) * CARD_HEIGHT
-
-      _x = isActive ? cursorState.mouseX : _x
-      _y = isActive ? cursorState.mouseY : _y
-    }
+    _x = isActive ? cursorState.mouseX : _x
+    _y = isActive ? cursorState.mouseY : _y
 
     const config = { stiffness: 200, damping: 20 }
     const x = card.value > -1 ? spring(_x, config) : _x
@@ -50,8 +42,10 @@ export const Card = React.memo(
     const r = spring(0, config)
     const s = spring(isActive ? 1.185 : 1, config)
     const o = spring(card.value > -1 ? 1 : 0, config)
-    const suit = SUITS[card.suit]
-    const color = COLORS[card._color || card.color]
+    const suit = constants.SUITS[card.suit]
+    const color = constants.COLORS[card._color || card.color]
+    const isHidden = card.list === 'draw'
+
     const classes = [
       `card can-move rank${card.value}`,
       isHidden && 'hidden',

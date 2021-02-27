@@ -1,5 +1,5 @@
 import React from 'react'
-import { getDirections } from '../../utils'
+import { getDirections } from '../utils'
 
 export const Arrows = ({ direction = 0 }) => {
   const [t, r, b, l, tr, br, bl, tl] = getDirections(direction)
@@ -12,7 +12,7 @@ export const Arrows = ({ direction = 0 }) => {
       xmlns="http://www.w3.org/2000/svg"
       style={{ width: 25 }}
     >
-      <g clip-path="url(#clip0)">
+      <g clipPath="url(#clip0)">
         {l && (
           <path
             d="M4.33333 15.7314L4.33333 13.6373L8.49333 13.6464L8.49333 12.3536L4.33333 12.3627L4.33333 10.2686L6.92497e-07 13L4.33333 15.7314Z"

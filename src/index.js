@@ -1,12 +1,12 @@
 import React from 'react'
 import ReactDOM from 'react-dom'
-import { Cards } from './components/Cards'
+import App from './components/App'
 import './index.css'
 
 ReactDOM.render(
   <React.StrictMode>
     <div className="container">
-      <Cards />
+      <App />
     </div>
   </React.StrictMode>,
   document.getElementById('root'),

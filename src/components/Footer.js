@@ -1,7 +1,7 @@
 import React from 'react'
-import { COLORS } from './Cards/Card'
+import { COLORS } from '../constants'
 
-export function Footer({ onSubmit, onStore, state }) {
+export function Footer({ onSubmit, setModal, state }) {
   return (
     <footer>
       <div
@@ -13,10 +13,16 @@ export function Footer({ onSubmit, onStore, state }) {
         }}
       >
         <button onClick={onSubmit}>Submit</button>
-        <button onClick={() => onStore(1)}>Red Store</button>
-        <button onClick={() => onStore(2)}>Green Store</button>
-        <button onClick={() => onStore(3)}>Blue Store</button>
-        <button onClick={() => onStore(4)}>Deck</button>
+        <button onClick={() => setModal({ name: 'store', type: 'red' })}>
+          Red Store
+        </button>
+        <button onClick={() => setModal({ name: 'store', type: 'green' })}>
+          Green Store
+        </button>
+        <button onClick={() => setModal({ name: 'store', type: 'blue' })}>
+          Blue Store
+        </button>
+        <button onClick={() => setModal({ name: 'deck' })}>Deck</button>
       </div>
 
       <div
