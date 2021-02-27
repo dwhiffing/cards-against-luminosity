@@ -1,18 +1,17 @@
 import React from 'react'
 import { COLORS } from '../constants'
 
-export function Header({ state }) {
+export function Header({ state, setModal }) {
   return (
     <header>
-      <div style={{ width: 80 }}>
-        <span>Game</span>
+      <div style={{ flex: 1, display: 'flex' }}>
+        <span style={{ fontSize: 12 }}>Cards Against Luminosity</span>
       </div>
 
       <div
         style={{
           flex: 1,
           display: 'flex',
-          alignItems: 'center',
           justifyContent: 'center',
         }}
       >
@@ -27,7 +26,25 @@ export function Header({ state }) {
         </p>
       </div>
 
-      <div style={{ width: 80, textAlign: 'center' }}></div>
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'flex-end',
+          justifyContent: 'center',
+        }}
+      >
+        <button onClick={() => setModal({ name: 'store', type: 'red' })}>
+          Red Store
+        </button>
+        <button onClick={() => setModal({ name: 'store', type: 'green' })}>
+          Green Store
+        </button>
+        <button onClick={() => setModal({ name: 'store', type: 'blue' })}>
+          Blue Store
+        </button>
+      </div>
     </header>
   )
 }

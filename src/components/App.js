@@ -46,7 +46,7 @@ const App = () => {
 
   return (
     <>
-      <Header state={state} />
+      <Header state={state} setModal={setModal} />
 
       <Modal state={state} setState={setState} onClose={() => setModal()} />
 

@@ -7,20 +7,11 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setModal, state }) {
       <div
         style={{
           flex: 1,
+          alignItems: 'flex-end',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
+          justifyContent: 'flex-start',
         }}
       >
-        <button onClick={() => setModal({ name: 'store', type: 'red' })}>
-          Red Store
-        </button>
-        <button onClick={() => setModal({ name: 'store', type: 'green' })}>
-          Green Store
-        </button>
-        <button onClick={() => setModal({ name: 'store', type: 'blue' })}>
-          Blue Store
-        </button>
         <button onClick={() => setModal({ name: 'deck' })}>Deck</button>
       </div>
 
@@ -28,12 +19,10 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setModal, state }) {
         style={{
           flex: 1,
           display: 'flex',
-          alignItems: 'center',
+          alignItems: 'flex-end',
           justifyContent: 'center',
         }}
       >
-        <button onClick={onSave}>save</button>
-        <button onClick={onReset}>reset</button>
         <TimerButton
           cache={state.counters.draw_cache}
           time={state.counters.draw_time}
@@ -56,6 +45,17 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setModal, state }) {
           Submit
         </TimerButton>
       </div>
+      <div
+        style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end',
+        }}
+      >
+        <button onClick={onSave}>save</button>
+        <button onClick={onReset}>reset</button>
+      </div>
     </footer>
   )
 }
@@ -72,15 +72,15 @@ const TimerButton = ({
   onClick,
   disabled,
 }) => (
-  <>
-    <p>
+  <div>
+    <p style={{ fontSize: 10, margin: 0, textAlign: 'center' }}>
       {cache}/{cacheMax}
     </p>
-    <p style={{ margin: 20 }}>
+    <p style={{ fontSize: 10, margin: 0, textAlign: 'center' }}>
       {Math.round(time / tps)}/{Math.round(totalTime / tps)}
     </p>
     <button disabled={cache === 0 || disabled} onClick={onClick}>
       {children}
     </button>
-  </>
+  </div>
 )

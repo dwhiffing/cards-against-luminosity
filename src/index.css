@@ -32,7 +32,7 @@ body {
 header {
   display: flex;
   justify-content: space-between;
-  margin: 20px;
+  margin: 10px;
 }
 
 .container {
@@ -172,7 +172,7 @@ header {
 footer {
   display: flex;
   justify-content: space-between;
-  margin: 20px;
+  margin: 10px;
 }
 
 @media (max-width: 700px) {
