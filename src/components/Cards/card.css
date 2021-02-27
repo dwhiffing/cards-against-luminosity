@@ -57,18 +57,8 @@
   touch-action: none;
 }
 
-.card.♠,
-.card.♣ {
-  color: #000;
-}
-
-.card.♦,
-.card.♥ {
-  color: #d40000;
-}
-
 .card.rank1:before {
-  content: 'A';
+  content: '1';
 }
 .card.rank2:before {
   content: '2';
