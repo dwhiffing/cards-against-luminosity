@@ -1,39 +1,48 @@
 import * as utils from '../utils'
-import { moveCard } from './moveCard'
+import { draw } from './draw'
 
 export const doCounters = (state) => {
-  if (state.counters.draw === 0) {
+  if (state.counters.draw_time === 0) {
     state = {
       ...state,
-      counters: { ...state.counters, draw: state.limits.draw_time },
+      counters: {
+        ...state.counters,
+        draw_cache: state.counters.draw_cache + 1,
+        draw_time: state.limits.draw_time,
+      },
     }
-    if (state.cards.draw.length > 0) {
-      if (state.cards.hand.length < state.limits.hand_size)
-        state = { ...moveCard(state, 'draw', 'hand') }
-    } else {
-      state = { ...shuffleDiscard(state) }
-    }
-  }
-
-  if (state.counters.submit === 0) {
+    if (state.limits.autoDraw) state = draw(state)
+  } else if (state.counters.draw_cache < state.limits.draw_cache) {
     state = {
-      ...utils.scoreCards(state),
-      counters: { ...state.counters, submit: state.limits.submit_time },
+      ...state,
+      counters: { ...state.counters, draw_time: state.counters.draw_time - 1 },
     }
   }
 
-  state = {
-    ...state,
-    counters: {
-      ...state.counters,
-      submit: state.counters.submit - 1,
-      draw: state.counters.draw - 1,
-    },
+  if (state.counters.submit_time === 0) {
+    state = {
+      ...state,
+      counters: {
+        ...state.counters,
+        submit_cache: state.counters.submit_cache + 1,
+        submit_time: state.limits.submit_time,
+      },
+    }
+    if (state.limits.autoSubmit) state = utils.scoreCards(state)
+  } else {
+    if (state.counters.submit_cache < state.limits.submit_cache)
+      state = {
+        ...state,
+        counters: {
+          ...state.counters,
+          submit_time: state.counters.submit_time - 1,
+        },
+      }
   }
 
   return state
 }
-const shuffleDiscard = (state) => {
+export const shuffleDiscard = (state) => {
   return {
     ...state,
     cards: { ...state.cards, draw: state.cards.discard, discard: [] },

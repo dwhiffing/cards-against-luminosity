@@ -46,7 +46,17 @@ const App = () => {
         })}
       </div>
 
-      <Footer setModal={setModal} state={state} />
+      <Footer
+        onSave={() => utils.writeToStorage('save', state)}
+        onReset={() => {
+          utils.removeFromStorage('save')
+          window.location.reload()
+        }}
+        onSubmit={() => setState(utils.scoreCards)}
+        onDraw={() => setState(utils.draw)}
+        setModal={setModal}
+        state={state}
+      />
     </>
   )
 }

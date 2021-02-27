@@ -2,6 +2,7 @@ import { shuffle } from 'lodash'
 import { v4 as uuid } from 'uuid'
 
 export const emptyCard = { value: undefined, id: null, direction: 0 }
+export const TICK = 200
 export const SUITS = '●×+✂↻✎'.split('')
 export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
 export const CARD_HEIGHT = 50
@@ -19,7 +20,46 @@ export const getNewCard = ({
   id: uuid(),
 })
 
-export const UPGRADES = {
+// TODO: should create function to generate array of prices from scaling config
+// input { baseCost, scalingRatio, maxPrice}
+
+const BASEUPGRADES = {
+  increaseHandSize: {
+    title: 'Increase Hand Size',
+    cost: { red: [1, 5, 20] },
+    effect: { type: 'change-limit', params: { name: 'hand_size', value: 1 } },
+  },
+  decreaseDrawTime: {
+    title: 'Decrease Draw Time',
+    cost: { green: [1, 2, 4, 9, 15, 50, 100, 200] },
+    effect: { type: 'change-limit', params: { name: 'draw_time', value: -1 } },
+  },
+  increaseMaxDraws: {
+    title: 'Increase Draw max',
+    cost: { green: [1, 2, 4, 9, 15, 50, 100, 200] },
+    effect: { type: 'change-limit', params: { name: 'draw_cache', value: 1 } },
+  },
+  increaseBoardSize: {
+    title: 'Increase Board Size',
+    cost: { blue: [1, 50, 1000] },
+    effect: { type: 'change-limit', params: { name: 'board_size', value: 1 } },
+  },
+
+  decreaseSubmitTime: {
+    title: 'Decrease Submit Time',
+    cost: { blue: 0 },
+    effect: {
+      type: 'change-limit',
+      params: { name: 'submit_time', value: -1 },
+    },
+  },
+
+  addPoints: {
+    title: 'Cheat Points',
+    cost: {},
+    effect: { type: 'add-points', params: { value: 100 } },
+  },
+
   addRedCard: {
     title: 'Add Red Card',
     cost: { red: 0 },
@@ -35,36 +75,16 @@ export const UPGRADES = {
     cost: { blue: 0 },
     effect: { type: 'add-card', params: { value: 2, color: 2 } },
   },
-  increaseHandSize: {
-    title: 'Increase Hand Size',
-    cost: { blue: 0 },
-    effect: { type: 'change-limit', params: { name: 'hand_size', value: 1 } },
-  },
-  decreaseDrawTime: {
-    title: 'Decrease Draw Time',
-    cost: { blue: 0 },
-    effect: { type: 'change-limit', params: { name: 'draw_time', value: -1 } },
-  },
-  decreaseSubmitTime: {
-    title: 'Decrease Submit Time',
-    cost: { blue: 0 },
-    effect: {
-      type: 'change-limit',
-      params: { name: 'submit_time', value: -1 },
-    },
-  },
-  increaseBoardSize: {
-    title: 'Increase Board Size',
-    cost: { blue: 0 },
-    effect: { type: 'change-limit', params: { name: 'board_size', value: 1 } },
-  },
 }
 
+export const UPGRADES = Object.entries(BASEUPGRADES).reduce((obj, [k, v]) => {
+  return { ...obj, [k]: { ...v, name: k } }
+}, {})
+
 export const STORES = {
-  red: [UPGRADES.addRedCard],
-  green: [UPGRADES.addGreenCard],
-  // blue: [UPGRADES.increaseHandSize],
-  blue: Object.values(UPGRADES),
+  red: [UPGRADES.increaseHandSize, UPGRADES.addPoints],
+  green: [UPGRADES.decreaseDrawTime, UPGRADES.increaseMaxDraws],
+  blue: [UPGRADES.increaseBoardSize],
 }
 
 const CARDS = [
@@ -81,22 +101,27 @@ const CARDS = [
 export const getInitialState = () => {
   const shuffled = shuffle(CARDS)
   const board_size = 1
-  const draw_time = 30
-  const submit_time = 100
+  const draw_time = 25
+  const submit_time = 50
   return {
     store: {
       open: 0,
     },
+    purchases: {},
     limits: {
       hand_size: 1,
       draw_count: 1,
+      draw_cache: 1,
+      submit_cache: 1,
       board_size,
       draw_time,
       submit_time,
     },
     counters: {
-      draw: draw_time,
-      submit: submit_time,
+      draw_time: 0,
+      submit_time: 0,
+      draw_cache: 0,
+      submit_cache: 0,
     },
     points: {
       red: 0,
@@ -105,9 +130,9 @@ export const getInitialState = () => {
     },
     cards: {
       board: getBoard(board_size),
-      draw: shuffled.slice(1),
+      draw: shuffled,
       discard: [],
-      hand: shuffled.slice(0, 1),
+      hand: [],
     },
   }
 }

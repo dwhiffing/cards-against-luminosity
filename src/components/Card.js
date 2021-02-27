@@ -55,7 +55,8 @@ export const Card = React.memo(
     const classes = [
       `card can-move rank${card.value}`,
       isHidden && 'hidden',
-      isActive && 'disable-touch',
+      (isActive || card.list === 'draw' || card.list === 'discard') &&
+        'disable-touch',
       typeof card.value !== 'number' && 'empty',
       suit,
     ]

@@ -6,12 +6,19 @@ import { getNewCard, getBoard } from '../constants'
 //               }),
 
 export const doPurchase = (state, purchase) => {
-  let points = Object.entries(purchase.cost).reduce(
+  let points = getCost(state, purchase).reduce(
     (sum, [k, v]) => ({ ...sum, [k]: sum[k] - v }),
     { ...state.points },
   )
   let cards = { ...state.cards }
   let limits = { ...state.limits }
+
+  if (purchase.effect.type === 'add-points') {
+    points = Object.entries(points).reduce(
+      (sum, [k, v]) => ({ ...sum, [k]: v + purchase.effect.params.value }),
+      {},
+    )
+  }
 
   if (purchase.effect.type === 'add-card') {
     cards.discard = cards.discard.concat([getNewCard(purchase.effect.params)])
@@ -22,6 +29,7 @@ export const doPurchase = (state, purchase) => {
       const size = purchase.effect?.params?.value || 0
       limits[purchase.effect.params.name] += size
       if (purchase.effect.params.name === 'board_size') {
+        // TODO: need to make sure this copies over contents of existing board
         cards.board = getBoard(limits[purchase.effect.params.name])
       }
     }
@@ -51,11 +59,23 @@ export const doPurchase = (state, purchase) => {
 
   return {
     ...state,
+    purchases: {
+      ...state.purchases,
+      [purchase.name]: (state.purchases[purchase.name] || 0) + 1,
+    },
     limits,
     cards,
     points,
   }
 }
 
-export const getCanAfford = (state, purchase) =>
-  Object.entries(purchase.cost).every(([key, val]) => state.points[key] >= val)
+export const getCost = (state, purchase) => {
+  const currentLevel = state.purchases[purchase.name] || 0
+  return Object.entries(purchase.cost).map(([k, v]) => [k, v[currentLevel]])
+}
+
+export const getCanAfford = (state, purchase) => {
+  return getCost(state, purchase).every(([key, val]) => {
+    return state.points[key] >= val
+  })
+}

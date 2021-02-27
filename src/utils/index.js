@@ -7,6 +7,7 @@ export { moveCard } from './moveCard'
 export { swapCards } from './swapCards'
 export { getCanAfford, doPurchase } from './doPurchase'
 export { doCounters } from './doCounters'
+export { draw } from './draw'
 
 export const useForceUpdate = () => {
   const [, setValue] = useState(0)
@@ -42,6 +43,7 @@ export const getDirections = (n = 0) => {
 }
 
 export const autoplayCard = (state, card) => {
+  if (state.cards.board.every((c) => !!c.value)) return state
   const index = state.cards.board.findIndex((c) => !c.value)
   return swapCards(state, { list: 'board', index }, card)
 }

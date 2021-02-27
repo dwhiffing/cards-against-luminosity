@@ -76,6 +76,10 @@ export const scoreCards = (state) => {
 
   state = {
     ...discardBoard(state),
+    counters: {
+      ...state.counters,
+      submit_cache: state.counters.submit_cache - 1,
+    },
   }
 
   return state

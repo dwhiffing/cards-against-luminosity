@@ -3,6 +3,7 @@ import BaseModal from 'react-modal'
 import * as utils from '../utils'
 import * as constants from '../constants'
 import { Card } from './Card'
+import { getCost } from '../utils/doPurchase'
 
 export function Modal({ state, setState, onClose }) {
   const { name, type } = state.modal || {}
@@ -29,18 +30,23 @@ export function Modal({ state, setState, onClose }) {
 
 const Store = ({ state, setState, purchases }) =>
   purchases.map((purchase) => (
-    <button
-      key={purchase.title}
-      onClick={() => {
-        if (utils.getCanAfford(state, purchase)) {
-          setState((state) => utils.doPurchase(state, purchase))
-        } else {
-          alert("You can't afford it")
-        }
-      }}
-    >
-      {purchase.title}
-    </button>
+    <div style={{ display: 'flex', flexDirection: 'column' }}>
+      <span style={{ fontSize: 8 }}>
+        {JSON.stringify(getCost(state, purchase))}
+      </span>
+      <button
+        key={purchase.title}
+        onClick={() => {
+          if (utils.getCanAfford(state, purchase)) {
+            setState((state) => utils.doPurchase(state, purchase))
+          } else {
+            alert("You can't afford it")
+          }
+        }}
+      >
+        {purchase.title}
+      </button>
+    </div>
   ))
 
 function Deck({ state }) {
