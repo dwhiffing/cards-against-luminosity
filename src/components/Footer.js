@@ -16,6 +16,7 @@ export function Footer({ onSubmit, onStore, state }) {
         <button onClick={() => onStore(1)}>Red Store</button>
         <button onClick={() => onStore(2)}>Green Store</button>
         <button onClick={() => onStore(3)}>Blue Store</button>
+        <button onClick={() => onStore(4)}>Deck</button>
       </div>
 
       <div

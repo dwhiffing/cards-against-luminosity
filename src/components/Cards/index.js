@@ -7,22 +7,8 @@ import { Footer } from '../Footer'
 import { Header } from '../Header'
 import './card.css'
 import { debounce } from 'lodash'
-import Modal from 'react-modal'
-
-const STORE_LABELS = ['red', 'green', 'blue']
-
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-  },
-}
-
-Modal.setAppElement('#root')
+import { Store } from '../Store'
+import { Deck } from '../Deck'
 
 export const Cards = () => {
   const [activeCard, setActiveCard] = useState(null)
@@ -70,16 +56,7 @@ export const Cards = () => {
     <>
       <Header />
 
-      <Modal
-        isOpen={state.store.open > 0}
-        style={customStyles}
-        overlayClassName="Overlay"
-        onRequestClose={() => onStore(0)}
-        contentLabel="Example Modal"
-      >
-        <p>{STORE_LABELS[state.store.open - 1]}</p>
-        <button onClick={() => onStore(0)}>close</button>
-      </Modal>
+      <Store state={state} setState={setState} onClose={() => onStore(0)} />
 
       <div className="cards-container">
         {cards.map(({ id, list, index, value, suit, color }) => {
@@ -104,7 +81,7 @@ const shuffled = shuffle(constants.CARDS)
 
 const initialState = {
   store: {
-    status: 0,
+    open: 0,
   },
   counters: {
     draw: 3,

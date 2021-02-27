@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid'
+
 export { useForceUpdate } from './useForceUpdate'
 export { useWindowEvent } from './useWindowEvent'
 export { useInterval } from './useInterval'
@@ -68,19 +70,22 @@ export const scoreCards = (state) => {
     },
     points: state.cards.board
       .filter((c) => c.value > 0)
-      .reduce((sum, current) => {
-        if (current.color === 0) {
-          sum.red += current.value
-        }
-        if (current.color === 1) {
-          sum.green += current.value
-        }
-        if (current.color === 2) {
-          sum.blue += current.value
-        }
+      .reduce(
+        (sum, current) => {
+          if (current.color === 0) {
+            sum.red += current.value
+          }
+          if (current.color === 1) {
+            sum.green += current.value
+          }
+          if (current.color === 2) {
+            sum.blue += current.value
+          }
 
-        return sum
-      }, state.points),
+          return sum
+        },
+        { ...state.points },
+      ),
   }
 }
 export const openStore = (state, n) => {
@@ -93,6 +98,45 @@ export const shuffleDiscard = (state) => {
   return {
     ...state,
     cards: { ...state.cards, draw: state.cards.discard, discard: [] },
+  }
+}
+export const doPurchase = (state, purchase) => {
+  let points = Object.entries(purchase.cost).reduce(
+    (sum, [k, v]) => ({ ...sum, [k]: sum[k] - v }),
+    { ...state.points },
+  )
+  let cards = state.cards
+
+  if (purchase.effect.type === 'add-card') {
+    cards.discard = cards.discard.concat([getNewCard(purchase.effect.params)])
+  }
+
+  if (purchase.effect.type === 'remove-card') {
+    cards = Object.entries({ ...cards }).reduce(
+      (obj, [k, v]) => ({
+        ...obj,
+        [k]: v.filter((c) => c.id !== purchase.effect.params.id),
+      }),
+      {},
+    )
+  }
+
+  if (purchase.effect.type === 'upgrade-card') {
+    cards = Object.entries({ ...cards }).reduce(
+      (obj, [k, v]) => ({
+        ...obj,
+        [k]: v.map((c) =>
+          c.id === purchase.effect.params.id ? { ...c, value: c.value + 1 } : c,
+        ),
+      }),
+      {},
+    )
+  }
+
+  return {
+    ...state,
+    cards,
+    points,
   }
 }
 export const handleCounters = (state) => {
@@ -115,3 +159,10 @@ export const handleCounters = (state) => {
     }
   }
 }
+
+const getNewCard = ({ value = 1, color = 0, suit = 0 } = {}) => ({
+  value,
+  color,
+  suit,
+  id: uuid(),
+})

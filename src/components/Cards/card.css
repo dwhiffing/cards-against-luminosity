@@ -88,11 +88,11 @@
   content: '10';
 }
 .card.rank11:before {
-  content: 'J';
+  content: '11';
 }
 .card.rank12:before {
-  content: 'Q';
+  content: '12';
 }
 .card.rank13:before {
-  content: 'K';
+  content: '13';
 }
