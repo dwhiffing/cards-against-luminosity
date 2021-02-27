@@ -4,7 +4,14 @@ import { Motion, spring } from 'react-motion'
 import { Arrows } from './Arrows'
 
 export const Card = React.memo(
-  ({ card, handSize = 0, isActive, cursorState, style = {} }) => {
+  ({
+    card,
+    handSize = 0,
+    boardSize = 1,
+    isActive,
+    cursorState,
+    style = {},
+  }) => {
     const w = window.innerWidth / 2
     const h = window.innerHeight / 2
     let _x = 0,
@@ -17,11 +24,10 @@ export const Card = React.memo(
     }
 
     if (card.list === 'board') {
-      _x = w - constants.BOARD_SIZE * 25
-      _y = h / 3
-      _x += (card.index % constants.BOARD_SIZE) * constants.CARD_HEIGHT
-      _y +=
-        Math.floor(card.index / constants.BOARD_SIZE) * constants.CARD_HEIGHT
+      _x = w - (boardSize / 2) * constants.CARD_HEIGHT
+      _y = h / 3 + ((5 - boardSize) / 2) * constants.CARD_HEIGHT
+      _x += (card.index % boardSize) * constants.CARD_HEIGHT
+      _y += Math.floor(card.index / boardSize) * constants.CARD_HEIGHT
     }
 
     if (card.list === 'draw') {

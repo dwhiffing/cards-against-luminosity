@@ -5,7 +5,6 @@ export const emptyCard = { value: undefined, id: null, direction: 0 }
 export const SUITS = '●×+✂↻✎'.split('')
 export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
 export const CARD_HEIGHT = 50
-export const BOARD_SIZE = 5
 
 export const getNewCard = ({
   value = 1,
@@ -23,25 +22,49 @@ export const getNewCard = ({
 export const UPGRADES = {
   addRedCard: {
     title: 'Add Red Card',
-    cost: { red: 1 },
+    cost: { red: 0 },
     effect: { type: 'add-card', params: { value: 2, color: 0 } },
   },
   addGreenCard: {
     title: 'Add Green Card',
-    cost: { green: 1 },
+    cost: { green: 0 },
     effect: { type: 'add-card', params: { value: 2, color: 1 } },
   },
   addBlueCard: {
     title: 'Add Blue Card',
-    cost: { blue: 1 },
+    cost: { blue: 0 },
     effect: { type: 'add-card', params: { value: 2, color: 2 } },
+  },
+  increaseHandSize: {
+    title: 'Increase Hand Size',
+    cost: { blue: 0 },
+    effect: { type: 'change-limit', params: { name: 'hand_size', value: 1 } },
+  },
+  decreaseDrawTime: {
+    title: 'Decrease Draw Time',
+    cost: { blue: 0 },
+    effect: { type: 'change-limit', params: { name: 'draw_time', value: -1 } },
+  },
+  decreaseSubmitTime: {
+    title: 'Decrease Submit Time',
+    cost: { blue: 0 },
+    effect: {
+      type: 'change-limit',
+      params: { name: 'submit_time', value: -1 },
+    },
+  },
+  increaseBoardSize: {
+    title: 'Increase Board Size',
+    cost: { blue: 0 },
+    effect: { type: 'change-limit', params: { name: 'board_size', value: 1 } },
   },
 }
 
 export const STORES = {
   red: [UPGRADES.addRedCard],
   green: [UPGRADES.addGreenCard],
-  blue: [UPGRADES.addBlueCard],
+  // blue: [UPGRADES.increaseHandSize],
+  blue: Object.values(UPGRADES),
 }
 
 const CARDS = [
@@ -57,20 +80,23 @@ const CARDS = [
 ]
 export const getInitialState = () => {
   const shuffled = shuffle(CARDS)
+  const board_size = 1
+  const draw_time = 30
+  const submit_time = 100
   return {
     store: {
       open: 0,
     },
     limits: {
-      board_size: 1,
       hand_size: 1,
-      draw_time: 5,
       draw_count: 1,
-      submit_time: 10,
+      board_size,
+      draw_time,
+      submit_time,
     },
     counters: {
-      draw: 5,
-      submit: 10,
+      draw: draw_time,
+      submit: submit_time,
     },
     points: {
       red: 0,
@@ -78,7 +104,7 @@ export const getInitialState = () => {
       blue: 0,
     },
     cards: {
-      board: getBoard(),
+      board: getBoard(board_size),
       draw: shuffled.slice(1),
       discard: [],
       hand: shuffled.slice(0, 1),
@@ -86,8 +112,8 @@ export const getInitialState = () => {
   }
 }
 
-const getBoard = () =>
-  new Array(BOARD_SIZE * BOARD_SIZE)
+export const getBoard = (size) =>
+  new Array(size * size)
     .fill('')
-    .slice(0, BOARD_SIZE * BOARD_SIZE)
+    .slice(0, size * size)
     .map(() => ({ id: uuid() }))

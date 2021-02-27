@@ -1,4 +1,4 @@
-import { getNewCard } from '../constants'
+import { getNewCard, getBoard } from '../constants'
 
 // utils.doPurchase(state, {
 //                 cost: {},
@@ -10,10 +10,21 @@ export const doPurchase = (state, purchase) => {
     (sum, [k, v]) => ({ ...sum, [k]: sum[k] - v }),
     { ...state.points },
   )
-  let cards = state.cards
+  let cards = { ...state.cards }
+  let limits = { ...state.limits }
 
   if (purchase.effect.type === 'add-card') {
     cards.discard = cards.discard.concat([getNewCard(purchase.effect.params)])
+  }
+
+  if (purchase.effect.type === 'change-limit') {
+    if (purchase.effect?.params?.name) {
+      const size = purchase.effect?.params?.value || 0
+      limits[purchase.effect.params.name] += size
+      if (purchase.effect.params.name === 'board_size') {
+        cards.board = getBoard(limits[purchase.effect.params.name])
+      }
+    }
   }
 
   if (purchase.effect.type === 'remove-card') {
@@ -40,6 +51,7 @@ export const doPurchase = (state, purchase) => {
 
   return {
     ...state,
+    limits,
     cards,
     points,
   }

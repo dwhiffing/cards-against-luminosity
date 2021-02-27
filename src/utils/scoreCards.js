@@ -18,7 +18,7 @@ export const scoreCards = (state) => {
   } = cardGroups
 
   const applyEffect = (card, effect) => {
-    const effectedCards = getCardsInDirection(state.cards.board, card)
+    const effectedCards = getCardsInDirection(state, card)
     effectedCards.forEach((c) => {
       const target = pointCards.find((pc) => c.id === pc.id)
       effect(target)
@@ -124,9 +124,10 @@ const addCardScores = (state, cards) =>
     { ...state.points },
   )
 
-const getCardsInDirection = (cards, card) => {
+const getCardsInDirection = (state, card) => {
+  const cards = state.cards.board
+  const s = state.limits.board_size
   const p = card.index
-  const s = constants.BOARD_SIZE
   // TODO: implement diagonals
   const [t, r, b, l, tr, br, bl, tl] = getDirections(card.direction)
   let result = []

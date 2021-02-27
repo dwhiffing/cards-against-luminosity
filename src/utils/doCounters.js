@@ -3,20 +3,15 @@ import { moveCard } from './moveCard'
 
 export const doCounters = (state) => {
   if (state.counters.draw === 0) {
+    state = {
+      ...state,
+      counters: { ...state.counters, draw: state.limits.draw_time },
+    }
     if (state.cards.draw.length > 0) {
-      state = {
-        ...state,
-        counters: { ...state.counters, draw: state.limits.submit_time },
-      }
       if (state.cards.hand.length < state.limits.hand_size)
-        state = {
-          ...moveCard(state, 'draw', 'hand'),
-        }
+        state = { ...moveCard(state, 'draw', 'hand') }
     } else {
-      state = {
-        ...shuffleDiscard(state),
-        counters: { ...state.counters, draw: state.limits.submit_time },
-      }
+      state = { ...shuffleDiscard(state) }
     }
   }
 

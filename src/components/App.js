@@ -16,7 +16,7 @@ const App = () => {
   const setModal = (modal) => setState((state) => ({ ...state, modal }))
 
   utils.useWindowEvent('resize', debounce(utils.useForceUpdate(), 500))
-  utils.useInterval(() => setState(utils.doCounters), 500)
+  utils.useInterval(() => setState(utils.doCounters), 200)
 
   const cards = Object.entries(state.cards)
     .map(([list, cards]) => cards.map((c, index) => ({ ...c, index, list })))
@@ -38,6 +38,7 @@ const App = () => {
               key={card.id || 'empty' + card.index}
               card={card}
               handSize={handSize}
+              boardSize={state.limits.board_size}
               isActive={isActive}
               cursorState={cursorState}
             />
