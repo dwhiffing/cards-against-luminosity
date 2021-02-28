@@ -1,7 +1,24 @@
 import React from 'react'
-import { COLORS } from '../constants'
+import { COLORS, STORES } from '../constants'
+import { getCanAfford } from '../utils'
 
 export function Header({ state, setModal }) {
+  const unseenUpgradesRed = STORES.red.filter(
+    (u) =>
+      !Object.keys(state.seen_upgrades).includes(u.name) &&
+      getCanAfford(state, u),
+  )
+  const unseenUpgradesGreen = STORES.green.filter(
+    (u) =>
+      !Object.keys(state.seen_upgrades).includes(u.name) &&
+      getCanAfford(state, u),
+  )
+  const unseenUpgradesBlue = STORES.blue.filter(
+    (u) =>
+      !Object.keys(state.seen_upgrades).includes(u.name) &&
+      getCanAfford(state, u),
+  )
+
   return (
     <header>
       <div style={{ flex: 1, display: 'flex' }}>
@@ -35,15 +52,30 @@ export function Header({ state, setModal }) {
           justifyContent: 'center',
         }}
       >
-        <button onClick={() => setModal({ name: 'store', type: 'red' })}>
-          Red Store
-        </button>
-        <button onClick={() => setModal({ name: 'store', type: 'green' })}>
-          Green Store
-        </button>
-        <button onClick={() => setModal({ name: 'store', type: 'blue' })}>
-          Blue Store
-        </button>
+        {state.max_points.red > 0 && (
+          <button onClick={() => setModal({ name: 'store', type: 'red' })}>
+            Red Store{' '}
+            {unseenUpgradesRed.length > 0
+              ? `(${unseenUpgradesRed.length})`
+              : ''}
+          </button>
+        )}
+        {state.max_points.green > 0 && (
+          <button onClick={() => setModal({ name: 'store', type: 'green' })}>
+            Green Store{' '}
+            {unseenUpgradesGreen.length > 0
+              ? `(${unseenUpgradesGreen.length})`
+              : ''}
+          </button>
+        )}
+        {state.max_points.blue > 0 && (
+          <button onClick={() => setModal({ name: 'store', type: 'blue' })}>
+            Blue Store{' '}
+            {unseenUpgradesBlue.length > 0
+              ? `(${unseenUpgradesBlue.length})`
+              : ''}
+          </button>
+        )}
       </div>
     </header>
   )

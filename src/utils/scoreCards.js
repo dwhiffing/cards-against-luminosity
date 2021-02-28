@@ -60,6 +60,15 @@ export const scoreCards = (state) => {
     points: addCardScores(state, pointCards),
   }
 
+  state = {
+    ...state,
+    max_points: {
+      red: Math.max(state.max_points.red, state.points.red),
+      green: Math.max(state.max_points.green, state.points.green),
+      blue: Math.max(state.max_points.blue, state.points.blue),
+    },
+  }
+
   removeCards.forEach((card) =>
     applyEffect(card, (target) => {
       state.cards = Object.entries({ ...state.cards }).reduce(

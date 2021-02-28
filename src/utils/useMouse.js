@@ -25,7 +25,7 @@ export const useMouse = (_onMouseDown) => {
 
   useWindowEvent('pointerup', ({ clientX, clientY }) => {
     let element = document.elementFromPoint(clientX, clientY)
-    if (element.classList.contains('click')) element = element.parentElement
+    if (element?.classList.contains('click')) element = element.parentElement
     if (
       startRef.current.x - clientX > 10 ||
       startRef.current.y - clientY > 10

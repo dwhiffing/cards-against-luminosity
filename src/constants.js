@@ -165,7 +165,7 @@ export const getInitialState = () => {
   const shuffled = shuffle(CARDS)
   const board_size = 1
   const draw_time = 25
-  const submit_time = 50
+  const submit_time = 25
   return {
     store: {
       open: 0,
@@ -202,6 +202,12 @@ export const getInitialState = () => {
       green: 0,
       blue: 0,
     },
+    max_points: {
+      red: 0,
+      green: 0,
+      blue: 0,
+    },
+    seen_upgrades: {},
     cards: {
       board: getBoard(board_size),
       draw: shuffled,

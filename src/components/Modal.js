@@ -4,7 +4,7 @@ import * as utils from '../utils'
 import * as constants from '../constants'
 import { Card } from './Card'
 import { getCost } from '../utils/doPurchase'
-import { random } from 'lodash'
+import { startCase } from 'lodash'
 
 export function Modal({ state, setState, onClose }) {
   const { name, type } = state.modal || {}
@@ -17,8 +17,16 @@ export function Modal({ state, setState, onClose }) {
       overlayClassName="Overlay"
       style={customStyles}
     >
-      <p>{label}</p>
-      <div>
+      <p style={{ textAlign: 'center' }}>{startCase(label)}</p>
+      <div
+        style={{
+          display: 'flex',
+          flexWrap: 'wrap',
+          maxWidth: 400,
+          width: '100%',
+          justifyContent: 'center',
+        }}
+      >
         {name === 'store' ? (
           <Store state={state} setState={setState} purchases={purchases} />
         ) : name === 'addCard' ? (
@@ -45,7 +53,7 @@ const AddCard = ({ state, setState }) => {
       <p>Add card</p>
       <div style={{ display: 'flex' }}>
         {cards.map((c, i) => (
-          <div>
+          <div key={c.id}>
             <div
               style={{
                 position: 'relative',
@@ -76,12 +84,50 @@ const AddCard = ({ state, setState }) => {
   )
 }
 
-const Store = ({ state, setState, purchases }) =>
-  purchases.map((purchase) => (
-    <div style={{ display: 'flex', flexDirection: 'column' }}>
-      <span style={{ fontSize: 8 }}>
-        {JSON.stringify(getCost(state, purchase))}
-      </span>
+const Store = ({ state, setState, purchases, afford }) => {
+  const affordable = purchases.filter((p) => {
+    const cost = getCost(state, p)
+    return cost.every(([name, value]) => state.max_points[name] >= value)
+  })
+
+  useEffect(() => {
+    const newUpgrades = affordable.reduce((obj, up) => {
+      return {
+        ...obj,
+        [up.name]: true,
+      }
+    }, {})
+
+    setState((state) => {
+      return {
+        ...state,
+        seen_upgrades: { ...state.seen_upgrades, ...newUpgrades },
+      }
+    })
+    // eslint-disable-next-line
+  }, [])
+
+  return affordable.map((purchase) => (
+    <div
+      key={purchase.title}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        textAlign: 'center',
+        width: 150,
+        height: 80,
+        margin: 10,
+      }}
+    >
+      <p style={{ fontSize: 12, margin: 0 }}>{purchase.title}</p>
+
+      {getCost(state, purchase).map(([name, value]) => (
+        <span style={{ fontSize: 8, margin: '5px 0' }}>
+          {name}:{value}
+        </span>
+      ))}
+
       <button
         key={purchase.title}
         onClick={() => {
@@ -92,10 +138,11 @@ const Store = ({ state, setState, purchases }) =>
           }
         }}
       >
-        {purchase.title}
+        Buy
       </button>
     </div>
   ))
+}
 
 function Deck({ state }) {
   const cards = Object.values(state.cards)
