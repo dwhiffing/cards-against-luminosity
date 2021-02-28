@@ -14,7 +14,6 @@ export const scoreCards = (state) => {
     2: upgradeCards = [],
     3: removeCards = [],
     4: persistCards = [],
-    5: convertCards = [],
   } = cardGroups
 
   const applyEffect = (card, effect) => {
@@ -28,12 +27,6 @@ export const scoreCards = (state) => {
   persistCards.forEach((card) =>
     applyEffect(card, (target) => {
       target._hp = card.value
-    }),
-  )
-
-  convertCards.forEach((card) =>
-    applyEffect(card, (target) => {
-      target._color = card.color
     }),
   )
 

@@ -80,6 +80,7 @@ export const Card = React.memo(
               ...style,
             }}
           >
+            <div className="value">{card.value}</div>
             {typeof card.value === 'number' && suit && (
               <div className="face">{suit}</div>
             )}

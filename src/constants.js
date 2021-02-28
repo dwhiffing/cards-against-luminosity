@@ -4,7 +4,7 @@ import { v4 as uuid } from 'uuid'
 export const emptyCard = { value: undefined, id: null, direction: 0 }
 export const CHEAT_MODE = false
 export const TICK = 200
-export const SUITS = '●×+✂↻✎'.split('')
+export const SUITS = '●×✂+↻'.split('')
 export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
 export const CARD_HEIGHT = 50
 const draw_time = 25
@@ -23,19 +23,53 @@ export const getNewCard = ({
   id: uuid(),
 })
 
-export const getCardWithRarity = ({ color, suit, value }) => {
-  // const rarity = random(0, 100)
-  if (Array.isArray(color)) {
-    color = shuffle(color)[0]
+export const getCardWithRarity = ({ color, level }) => {
+  let value, suit, direction
+  if (level === 1) {
+    suit = shuffle([0, 1, 2])[0]
+    value = shuffle(suit === 0 ? [2, 3, 4, 5] : suit === 1 ? [2, 3] : [1, 2])[0]
   }
-  if (Array.isArray(suit)) {
-    suit = shuffle(suit)[0]
+  if (level === 2) {
+    suit = shuffle([0, 1, 2, 3, 4])[0]
+    value = shuffle(
+      suit === 0
+        ? [6, 8, 10, 20]
+        : suit === 1
+        ? [3, 4, 5]
+        : suit === 2
+        ? [1, 2, 3]
+        : suit === 3
+        ? [1, 2, 3]
+        : [1, 2, 3],
+    )[0]
   }
-  if (Array.isArray(value)) {
-    value = shuffle(value)[0]
+  if (level === 3) {
+    suit = shuffle([1, 2, 3, 4])[0]
+    value = shuffle(
+      suit === 0
+        ? [20, 40, 60, 100]
+        : suit === 1
+        ? [10, 20, 30]
+        : suit === 2
+        ? [3, 4, 5]
+        : suit === 3
+        ? [3, 4, 5]
+        : [3, 4, 5],
+    )[0]
   }
 
-  return getNewCard({ value, color, suit })
+  if (suit >= 1) {
+    if (level === 1) direction = shuffle([2, 8])[0]
+    if (level > 1) direction = shuffle([1, 2, 4, 8])[0]
+  }
+
+  // 0: pointCards = [],
+  //   1: multiCards = [],
+  //   2: upgradeCards = [],
+  //   3: removeCards = [],
+  //   4: persistCards = [],
+
+  return getNewCard({ value, color, suit, direction })
 }
 
 const getPrice = (baseCost = 1, priceRatio = 1.07, level) =>
@@ -83,7 +117,7 @@ const BASEUPGRADES = {
     cost: { type: 'red', levels: getPrices(2, 1.07, 10) },
     effect: {
       type: 'add-card',
-      params: { cardConfig: { color: 1, value: [1, 2, 3], suit: [0, 1] } },
+      params: { cardConfig: { color: 1, level: 1 } },
     },
   },
   addGreenCard: {
@@ -92,7 +126,7 @@ const BASEUPGRADES = {
     cost: { type: 'green', levels: getPrices(2, 1.07, 10) },
     effect: {
       type: 'add-card',
-      params: { cardConfig: { color: 2, value: [1, 2, 3], suit: [0, 1] } },
+      params: { cardConfig: { color: 2, level: 1 } },
     },
   },
   addBlueCard: {
@@ -100,7 +134,61 @@ const BASEUPGRADES = {
     cost: { type: 'blue', levels: getPrices(2, 1.07, 10) },
     effect: {
       type: 'add-card',
-      params: { cardConfig: { color: 3, value: [1, 2, 3], suit: [0, 1] } },
+      params: { cardConfig: { color: 3, level: 1 } },
+    },
+  },
+
+  addRedUncommonCard: {
+    title: 'Add Uncommon Red Card',
+    description: (l) => 'WRITE ME',
+    cost: { type: 'red', levels: getPrices(5, 1.07, 10) },
+    effect: {
+      type: 'add-card',
+      params: { cardConfig: { color: 1, level: 2 } },
+    },
+  },
+  addGreenUncommonCard: {
+    title: 'Add Uncommon Green Card',
+    description: (l) => 'WRITE ME',
+    cost: { type: 'green', levels: getPrices(5, 1.07, 10) },
+    effect: {
+      type: 'add-card',
+      params: { cardConfig: { color: 2, level: 2 } },
+    },
+  },
+  addBlueUncommonCard: {
+    title: 'Add Uncommon Blue Card',
+    cost: { type: 'blue', levels: getPrices(5, 1.07, 10) },
+    effect: {
+      type: 'add-card',
+      params: { cardConfig: { color: 3, level: 2 } },
+    },
+  },
+
+  addRedRareCard: {
+    title: 'Add Rare Red Card',
+    description: (l) => 'WRITE ME',
+    cost: { type: 'red', levels: getPrices(10, 1.07, 10) },
+    effect: {
+      type: 'add-card',
+      params: { cardConfig: { color: 1, level: 2 } },
+    },
+  },
+  addGreenRareCard: {
+    title: 'Add Rare Green Card',
+    description: (l) => 'WRITE ME',
+    cost: { type: 'green', levels: getPrices(10, 1.07, 10) },
+    effect: {
+      type: 'add-card',
+      params: { cardConfig: { color: 2, level: 2 } },
+    },
+  },
+  addBlueRareCard: {
+    title: 'Add Rare Blue Card',
+    cost: { type: 'blue', levels: getPrices(10, 1.07, 10) },
+    effect: {
+      type: 'add-card',
+      params: { cardConfig: { color: 3, level: 3 } },
     },
   },
 
