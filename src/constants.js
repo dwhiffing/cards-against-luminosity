@@ -70,6 +70,15 @@ const BASEUPGRADES = {
     },
   },
 
+  prestige: {
+    title: 'Prestige',
+    cost: { blue: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+    effect: {
+      type: 'change-limit',
+      params: { name: 'prestige', value: 0.1 },
+    },
+  },
+
   addPoints: {
     title: 'Cheat Points',
     cost: {},
@@ -104,7 +113,7 @@ export const STORES = {
     UPGRADES.addGreenCard,
     UPGRADES.increaseMaxDraws,
   ],
-  blue: [UPGRADES.increaseBoardSize, UPGRADES.addBlueCard],
+  blue: [UPGRADES.increaseBoardSize, UPGRADES.addBlueCard, UPGRADES.prestige],
 }
 
 const CARDS = [
@@ -129,6 +138,7 @@ export const getInitialState = () => {
     },
     purchases: {},
     limits: {
+      prestige: 1,
       hand_size: 1,
       draw_count: 1,
       draw_cache: 1,

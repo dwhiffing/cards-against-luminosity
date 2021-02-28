@@ -114,13 +114,13 @@ const addCardScores = (state, cards) =>
   cards.reduce(
     (sum, current) => {
       if (current._color === 1) {
-        sum.red += current._value
+        sum.red += Math.round(current._value * state.limits.prestige)
       }
       if (current._color === 2) {
-        sum.green += current._value
+        sum.green += Math.round(current._value * state.limits.prestige)
       }
       if (current._color === 3) {
-        sum.blue += current._value
+        sum.blue += Math.round(current._value * state.limits.prestige)
       }
 
       return sum
