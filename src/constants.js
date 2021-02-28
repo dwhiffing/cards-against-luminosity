@@ -1,4 +1,4 @@
-import { shuffle } from 'lodash'
+import { random, shuffle } from 'lodash'
 import { v4 as uuid } from 'uuid'
 
 export const emptyCard = { value: undefined, id: null, direction: 0 }
@@ -19,6 +19,22 @@ export const getNewCard = ({
   direction,
   id: uuid(),
 })
+
+export const getCardWithRarity = ({ color = 1, rarity = random(0, 100) }) => {
+  if (rarity > 90) {
+    return getNewCard({ value: 5, color, suit: 4 })
+  }
+  if (rarity > 80) {
+    return getNewCard({ value: 4, color, suit: 3 })
+  }
+  if (rarity > 60) {
+    return getNewCard({ value: 3, color, suit: 2 })
+  }
+  if (rarity > 50) {
+    return getNewCard({ value: 2, color, suit: 0 })
+  }
+  return getNewCard({ value: 1, color, suit: 0 })
+}
 
 // TODO: should create function to generate array of prices from scaling config
 // input { baseCost, scalingRatio, maxPrice}
@@ -47,7 +63,7 @@ const BASEUPGRADES = {
 
   decreaseSubmitTime: {
     title: 'Decrease Submit Time',
-    cost: { blue: 0 },
+    cost: { blue: [0] },
     effect: {
       type: 'change-limit',
       params: { name: 'submit_time', value: -1 },
@@ -62,18 +78,18 @@ const BASEUPGRADES = {
 
   addRedCard: {
     title: 'Add Red Card',
-    cost: { red: 0 },
-    effect: { type: 'add-card', params: { value: 2, color: 0 } },
+    cost: { red: [1, 1, 1, 1, 1] },
+    effect: { type: 'add-card', params: { color: 1 } },
   },
   addGreenCard: {
     title: 'Add Green Card',
-    cost: { green: 0 },
-    effect: { type: 'add-card', params: { value: 2, color: 1 } },
+    cost: { green: [1, 1, 1, 1, 1] },
+    effect: { type: 'add-card', params: { color: 2 } },
   },
   addBlueCard: {
     title: 'Add Blue Card',
-    cost: { blue: 0 },
-    effect: { type: 'add-card', params: { value: 2, color: 2 } },
+    cost: { blue: [1, 1, 1, 1, 1] },
+    effect: { type: 'add-card', params: { color: 3 } },
   },
 }
 
@@ -82,9 +98,13 @@ export const UPGRADES = Object.entries(BASEUPGRADES).reduce((obj, [k, v]) => {
 }, {})
 
 export const STORES = {
-  red: [UPGRADES.increaseHandSize, UPGRADES.addPoints],
-  green: [UPGRADES.decreaseDrawTime, UPGRADES.increaseMaxDraws],
-  blue: [UPGRADES.increaseBoardSize],
+  red: [UPGRADES.increaseHandSize, UPGRADES.addRedCard, UPGRADES.addPoints],
+  green: [
+    UPGRADES.decreaseDrawTime,
+    UPGRADES.addGreenCard,
+    UPGRADES.increaseMaxDraws,
+  ],
+  blue: [UPGRADES.increaseBoardSize, UPGRADES.addBlueCard],
 }
 
 const CARDS = [

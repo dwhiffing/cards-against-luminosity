@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import BaseModal from 'react-modal'
 import * as utils from '../utils'
 import * as constants from '../constants'
 import { Card } from './Card'
 import { getCost } from '../utils/doPurchase'
+import { random } from 'lodash'
 
 export function Modal({ state, setState, onClose }) {
   const { name, type } = state.modal || {}
@@ -17,14 +18,61 @@ export function Modal({ state, setState, onClose }) {
       style={customStyles}
     >
       <p>{label}</p>
-
-      {name === 'store' ? (
-        <Store state={state} setState={setState} purchases={purchases} />
-      ) : (
-        <Deck state={state} />
-      )}
+      <div>
+        {name === 'store' ? (
+          <Store state={state} setState={setState} purchases={purchases} />
+        ) : name === 'addCard' ? (
+          <AddCard state={state} setState={setState} />
+        ) : (
+          <Deck state={state} />
+        )}
+      </div>
       <button onClick={onClose}>close</button>
     </BaseModal>
+  )
+}
+
+// TODO colors should be based on what kind of card we bought
+// value and suit should be based on dice roll
+const AddCard = ({ state, setState }) => {
+  const [cards, setCards] = useState([
+    constants.getCardWithRarity({ color: state.modal.color || 1 }),
+    constants.getCardWithRarity({ color: state.modal.color || 1 }),
+    constants.getCardWithRarity({ color: state.modal.color || 1 }),
+  ])
+  return (
+    <div>
+      <p>Add card</p>
+      <div style={{ display: 'flex' }}>
+        {cards.map((c, i) => (
+          <div>
+            <div
+              style={{
+                position: 'relative',
+                width: constants.CARD_HEIGHT,
+                height: constants.CARD_HEIGHT,
+              }}
+            >
+              <Card card={c} />
+            </div>
+            <button
+              onClick={() => {
+                setState((state) => ({
+                  ...state,
+                  modal: null,
+                  cards: {
+                    ...state.cards,
+                    discard: state.cards.discard.concat([c]),
+                  },
+                }))
+              }}
+            >
+              pick
+            </button>
+          </div>
+        ))}
+      </div>
+    </div>
   )
 }
 

@@ -21,7 +21,7 @@ export const doPurchase = (state, purchase) => {
   }
 
   if (purchase.effect.type === 'add-card') {
-    cards.discard = cards.discard.concat([getNewCard(purchase.effect.params)])
+    state.modal = { name: 'addCard', color: purchase.effect.params.color }
   }
 
   if (purchase.effect.type === 'change-limit') {
