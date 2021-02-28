@@ -38,7 +38,36 @@ export const doCounters = (state) => {
       }
   }
 
-  if (state.counters.draw_cache > 0 && state.auto_play.draw) {
+  if (state.counters.play_time === 0) {
+    if (
+      state.auto_play.play &&
+      state.cards.hand.length > 0 &&
+      state.cards.board.filter((c) => !c.value).length > 0
+    ) {
+      state = {
+        ...utils.autoplayCard(state, {
+          ...state.cards.hand[0],
+          list: 'hand',
+          index: 0,
+        }),
+        counters: { ...state.counters, play_time: state.limits.play_auto_time },
+      }
+    }
+  } else {
+    state = {
+      ...state,
+      counters: {
+        ...state.counters,
+        play_time: state.counters.play_time - 1,
+      },
+    }
+  }
+
+  if (
+    state.counters.draw_cache > 0 &&
+    state.auto_play.draw &&
+    state.cards.hand.length < state.limits.hand_size
+  ) {
     state = draw(state)
   }
 

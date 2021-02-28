@@ -56,6 +56,19 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setState, state }) {
         >
           Submit
         </TimerButton>
+
+        <TimerButton
+          allowAuto={state.limits.play_auto}
+          autoEnabled={state.auto_play.play}
+          setAutoEnabled={(play) =>
+            setState({ ...state, auto_play: { ...state.auto_play, play } })
+          }
+          time={state.counters.play_time}
+          totalTime={state.limits.play_auto_time}
+          disabled
+        >
+          Play
+        </TimerButton>
       </div>
       <div
         style={{

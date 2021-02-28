@@ -97,6 +97,15 @@ const BASEUPGRADES = {
     },
   },
 
+  autoPlay: {
+    title: 'Auto Play',
+    cost: { blue: [1] },
+    effect: {
+      type: 'change-limit',
+      params: { name: 'play_auto', value: 1 },
+    },
+  },
+
   addPoints: {
     title: 'Cheat Points',
     cost: {},
@@ -129,6 +138,7 @@ export const STORES = {
     UPGRADES.increaseHandSize,
     UPGRADES.autoDraw,
     UPGRADES.autoSubmit,
+    UPGRADES.autoPlay,
     UPGRADES.addRedCard,
     UPGRADES.addPoints,
   ],
@@ -167,6 +177,8 @@ export const getInitialState = () => {
       draw_count: 1,
       draw_auto: 0,
       submit_auto: 0,
+      play_auto_time: 20,
+      play_auto: 0,
       draw_cache: 1,
       submit_cache: 1,
       board_size,
@@ -176,8 +188,10 @@ export const getInitialState = () => {
     auto_play: {
       draw: false,
       submit: false,
+      play: false,
     },
     counters: {
+      play_time: 0,
       draw_time: 0,
       submit_time: 0,
       draw_cache: 0,
