@@ -79,6 +79,24 @@ const BASEUPGRADES = {
     },
   },
 
+  autoDraw: {
+    title: 'Auto Draw',
+    cost: { blue: [1] },
+    effect: {
+      type: 'change-limit',
+      params: { name: 'draw_auto', value: 1 },
+    },
+  },
+
+  autoSubmit: {
+    title: 'Auto Submit',
+    cost: { blue: [1] },
+    effect: {
+      type: 'change-limit',
+      params: { name: 'submit_auto', value: 1 },
+    },
+  },
+
   addPoints: {
     title: 'Cheat Points',
     cost: {},
@@ -107,7 +125,13 @@ export const UPGRADES = Object.entries(BASEUPGRADES).reduce((obj, [k, v]) => {
 }, {})
 
 export const STORES = {
-  red: [UPGRADES.increaseHandSize, UPGRADES.addRedCard, UPGRADES.addPoints],
+  red: [
+    UPGRADES.increaseHandSize,
+    UPGRADES.autoDraw,
+    UPGRADES.autoSubmit,
+    UPGRADES.addRedCard,
+    UPGRADES.addPoints,
+  ],
   green: [
     UPGRADES.decreaseDrawTime,
     UPGRADES.addGreenCard,
@@ -141,11 +165,17 @@ export const getInitialState = () => {
       prestige: 1,
       hand_size: 1,
       draw_count: 1,
+      draw_auto: 0,
+      submit_auto: 0,
       draw_cache: 1,
       submit_cache: 1,
       board_size,
       draw_time,
       submit_time,
+    },
+    auto_play: {
+      draw: false,
+      submit: false,
     },
     counters: {
       draw_time: 0,

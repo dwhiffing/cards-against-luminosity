@@ -75,7 +75,7 @@ const App = () => {
         }}
         onSubmit={() => setState(utils.scoreCards)}
         onDraw={() => setState(utils.draw)}
-        setModal={setModal}
+        setState={setState}
         state={state}
       />
     </>

@@ -1,7 +1,7 @@
 import React from 'react'
 import * as constants from '../constants'
 
-export function Footer({ onSave, onReset, onSubmit, onDraw, setModal, state }) {
+export function Footer({ onSave, onReset, onSubmit, onDraw, setState, state }) {
   return (
     <footer>
       <div
@@ -12,7 +12,9 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setModal, state }) {
           justifyContent: 'flex-start',
         }}
       >
-        <button onClick={() => setModal({ name: 'deck' })}>Deck</button>
+        <button onClick={() => setState({ modal: { name: 'deck' } })}>
+          Deck
+        </button>
       </div>
 
       <div
@@ -26,6 +28,11 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setModal, state }) {
         <TimerButton
           cache={state.counters.draw_cache}
           time={state.counters.draw_time}
+          allowAuto={state.limits.draw_auto}
+          autoEnabled={state.auto_play.draw}
+          setAutoEnabled={(draw) =>
+            setState({ ...state, auto_play: { ...state.auto_play, draw } })
+          }
           cacheMax={state.limits.draw_cache}
           totalTime={state.limits.draw_time}
           onClick={onDraw}
@@ -36,6 +43,11 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setModal, state }) {
 
         <TimerButton
           cache={state.counters.submit_cache}
+          allowAuto={state.limits.submit_auto}
+          autoEnabled={state.auto_play.submit}
+          setAutoEnabled={(submit) =>
+            setState({ ...state, auto_play: { ...state.auto_play, submit } })
+          }
           cacheMax={state.limits.submit_cache}
           time={state.counters.submit_time}
           totalTime={state.limits.submit_time}
@@ -67,6 +79,9 @@ const TimerButton = ({
   cache = 0,
   cacheMax = 1,
   time,
+  autoEnabled,
+  setAutoEnabled,
+  allowAuto,
   totalTime,
   children,
   onClick,
@@ -82,5 +97,12 @@ const TimerButton = ({
     <button disabled={cache === 0 || disabled} onClick={onClick}>
       {children}
     </button>
+    {!!allowAuto && (
+      <input
+        type="checkbox"
+        checked={!!autoEnabled}
+        onChange={() => setAutoEnabled(!autoEnabled)}
+      />
+    )}
   </div>
 )
