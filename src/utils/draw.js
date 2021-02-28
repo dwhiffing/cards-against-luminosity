@@ -7,6 +7,7 @@ export const draw = (state) => {
       state = { ...moveCard(state, 'draw', 'hand') }
   } else {
     state = { ...shuffleDiscard(state) }
+    state = { ...moveCard(state, 'draw', 'hand') }
   }
   state = {
     ...state,

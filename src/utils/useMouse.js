@@ -12,7 +12,7 @@ export const useMouse = (_onMouseDown) => {
 
   useWindowEvent('pointerdown', ({ clientX, clientY }) => {
     let element = document.elementFromPoint(clientX, clientY)
-    if (element.classList.contains('click')) element = element.parentElement
+    if (element?.classList.contains('click')) element = element.parentElement
     startRef.current.x = clientX
     startRef.current.y = clientY
     _onMouseDown({

@@ -34,7 +34,7 @@ const App = () => {
         utils.writeToStorage('save', state)
         return state
       }),
-    30000,
+    5000,
   )
 
   if (!state) return null
@@ -59,7 +59,7 @@ const App = () => {
               key={card.id || 'empty' + card.index}
               card={card}
               handSize={handSize}
-              boardSize={state.limits.board_size}
+              boardSize={getBoardWidth(state.limits.board_size)}
               isActive={isActive}
               cursorState={cursorState}
             />
@@ -83,3 +83,11 @@ const App = () => {
 }
 
 export default App
+
+const getBoardWidth = (size) => {
+  if (size >= 17) return 5
+  if (size >= 10) return 4
+  if (size > 4) return 3
+  if (size >= 2) return 2
+  return 1
+}

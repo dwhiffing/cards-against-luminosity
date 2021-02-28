@@ -1,4 +1,4 @@
-import { getBoard } from '../constants'
+import { CHEAT_MODE, getBoard } from '../constants'
 
 // utils.doPurchase(state, {
 //                 cost: {},
@@ -11,7 +11,7 @@ export const doPurchase = (state, purchase) => {
   let cards = { ...state.cards }
   let limits = { ...state.limits }
 
-  points[cost.type] -= cost.value
+  if (!CHEAT_MODE) points[cost.type] -= cost.value
 
   if (purchase.effect.type === 'add-points') {
     points = Object.entries(points).reduce(
@@ -21,7 +21,10 @@ export const doPurchase = (state, purchase) => {
   }
 
   if (purchase.effect.type === 'add-card') {
-    state.modal = { name: 'addCard', color: purchase.effect.params.color }
+    state.modal = {
+      name: 'addCard',
+      cardConfig: purchase.effect.params.cardConfig,
+    }
   }
 
   if (purchase.effect.type === 'change-limit') {
@@ -69,12 +72,18 @@ export const doPurchase = (state, purchase) => {
   }
 }
 
+export const getCurrentLevel = (state, purchase) => {
+  return state.purchases[purchase.name] || 0
+}
 export const getCost = (state, purchase) => {
-  const currentLevel = state.purchases[purchase.name] || 0
-  return { type: purchase.cost.type, value: purchase.cost.levels[currentLevel] }
+  return {
+    type: purchase.cost.type,
+    value: purchase.cost.levels[getCurrentLevel(state, purchase)],
+  }
 }
 
 export const getCanAfford = (state, purchase) => {
+  if (CHEAT_MODE) return true
   const cost = getCost(state, purchase)
   return state.points[cost.type] >= cost.value
 }

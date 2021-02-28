@@ -12,7 +12,10 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setState, state }) {
           justifyContent: 'flex-start',
         }}
       >
-        <button onClick={() => setState({ modal: { name: 'deck' } })}>
+        {/* TODO: this should be under the discard deck */}
+        <button
+          onClick={() => setState((s) => ({ ...s, modal: { name: 'deck' } }))}
+        >
           Deck
         </button>
       </div>
@@ -25,6 +28,8 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setState, state }) {
           justifyContent: 'center',
         }}
       >
+        {/* TODO: this should be under the draw deck */}
+
         <TimerButton
           cache={state.counters.draw_cache}
           time={state.counters.draw_time}
@@ -56,7 +61,7 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setState, state }) {
         >
           Submit
         </TimerButton>
-
+        {/* TODO: this should just be a checkbox under the players hand */}
         <TimerButton
           allowAuto={state.limits.play_auto}
           autoEnabled={state.auto_play.play}
@@ -105,7 +110,7 @@ const TimerButton = ({
       {cache}/{cacheMax}
     </p>
     <p style={{ fontSize: 10, margin: 0, textAlign: 'center' }}>
-      {Math.round(time / tps)}/{Math.round(totalTime / tps)}
+      {(time / tps).toFixed(1)}/{(totalTime / tps).toFixed(1)}
     </p>
     <button disabled={cache === 0 || disabled} onClick={onClick}>
       {children}

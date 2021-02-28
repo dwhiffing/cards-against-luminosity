@@ -3,7 +3,7 @@ import BaseModal from 'react-modal'
 import * as utils from '../utils'
 import * as constants from '../constants'
 import { Card } from './Card'
-import { getCost } from '../utils/doPurchase'
+import { getCost, getCurrentLevel } from '../utils/doPurchase'
 import { startCase } from 'lodash'
 
 export function Modal({ state, setState, onClose }) {
@@ -43,11 +43,7 @@ export function Modal({ state, setState, onClose }) {
 // TODO colors should be based on what kind of card we bought
 // value and suit should be based on dice roll
 const AddCard = ({ state, setState }) => {
-  const [cards, setCards] = useState([
-    constants.getCardWithRarity({ color: state.modal.color || 1 }),
-    constants.getCardWithRarity({ color: state.modal.color || 1 }),
-    constants.getCardWithRarity({ color: state.modal.color || 1 }),
-  ])
+  const [cards] = useState(constants.getNewCards(state.modal.cardConfig))
   return (
     <div>
       <p>Add card</p>
@@ -85,14 +81,14 @@ const AddCard = ({ state, setState }) => {
 }
 
 const Store = ({ state, setState, purchases, afford }) => {
-  const affordable = purchases.filter(
+  const seenOrAffordable = purchases.filter(
     (p) =>
       utils.getCanAfford(state, p) ||
       Object.keys(state.seen_upgrades).includes(p.name),
   )
 
   useEffect(() => {
-    const newUpgrades = affordable.reduce((obj, up) => {
+    const newUpgrades = seenOrAffordable.reduce((obj, up) => {
       return {
         ...obj,
         [up.name]: true,
@@ -108,10 +104,10 @@ const Store = ({ state, setState, purchases, afford }) => {
     // eslint-disable-next-line
   }, [])
 
-  return affordable.map((purchase) => {
+  return seenOrAffordable.map((purchase) => {
     const cost = getCost(state, purchase)
-
-    console.log(cost)
+    const canAfford = utils.getCanAfford(state, purchase)
+    const currentLevel = getCurrentLevel(state, purchase)
     return (
       <div
         key={purchase.title}
@@ -127,27 +123,25 @@ const Store = ({ state, setState, purchases, afford }) => {
       >
         <p style={{ fontSize: 12, margin: 0 }}>{purchase.title}</p>
         {purchase.description && (
-          <p style={{ fontSize: 9, margin: '5px 0' }}>{purchase.description}</p>
-        )}
-
-        {typeof cost.value === 'number' && (
-          <span style={{ fontSize: 8, margin: '5px 0' }}>
-            {cost.type}:{cost.value}
-          </span>
+          <p style={{ fontSize: 9, margin: '5px 0' }}>
+            {purchase.description(currentLevel)}
+          </p>
         )}
 
         <button
           key={purchase.title}
-          disabled={typeof cost.value !== 'number'}
+          disabled={typeof cost.value !== 'number' || !canAfford}
           onClick={() => {
-            if (utils.getCanAfford(state, purchase)) {
+            if (canAfford) {
               setState((state) => utils.doPurchase(state, purchase))
             } else {
               alert("You can't afford it")
             }
           }}
         >
-          {typeof cost.value === 'number' ? 'Buy' : 'Max'}
+          {typeof cost.value === 'number'
+            ? `Buy (${cost.value} ${cost.type})`
+            : 'Max'}
         </button>
       </div>
     )
@@ -160,10 +154,13 @@ function Deck({ state }) {
     .filter((c) => !!c.value)
 
   return (
-    <div style={{ display: 'flex' }}>
+    <div style={{ display: 'flex', flexWrap: 'wrap' }}>
       {cards.map((card) => (
         <div key={card.id}>
-          <Card card={card} style={{ position: 'relative', marginRight: 8 }} />
+          <Card
+            card={card}
+            style={{ position: 'relative', marginTop: 8, marginRight: 8 }}
+          />
         </div>
       ))}
     </div>
