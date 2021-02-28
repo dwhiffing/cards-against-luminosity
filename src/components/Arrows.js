@@ -10,7 +10,7 @@ export const Arrows = ({ direction = 0 }) => {
       viewBox="0 0 26 26"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ width: 25 }}
+      style={{ width: 30 }}
     >
       <g clipPath="url(#clip0)">
         {l && (

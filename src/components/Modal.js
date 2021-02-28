@@ -51,9 +51,10 @@ const AddCard = ({ state, setState }) => {
           <div key={c.id}>
             <div
               style={{
+                marginRight: '.25rem',
                 position: 'relative',
-                width: constants.CARD_HEIGHT,
-                height: constants.CARD_HEIGHT,
+                width: '2rem',
+                height: '2rem',
               }}
             >
               <Card card={c} />

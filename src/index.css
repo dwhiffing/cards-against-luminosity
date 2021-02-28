@@ -84,7 +84,7 @@ header {
   line-height: 0.7rem;
   font-family: 'Ubuntu Condensed', sans-serif;
   width: 0.55rem;
-  letter-spacing: -0.1rem;
+  letter-spacing: 0rem;
   top: 0.1rem;
   left: 0rem;
   pointer-events: none;
@@ -125,6 +125,10 @@ header {
   left: 0;
   right: 0;
   bottom: 0;
+}
+
+.card.hidden .value {
+  opacity: 0;
 }
 
 .card.hidden .back {
