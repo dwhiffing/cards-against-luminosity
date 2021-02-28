@@ -5,6 +5,7 @@ import * as constants from '../constants'
 import { Card } from './Card'
 import { getCost, getCurrentLevel } from '../utils/doPurchase'
 import { startCase } from 'lodash'
+BaseModal.setAppElement('#root')
 
 export function Modal({ state, setState, onClose }) {
   const { name, type } = state.modal || {}
@@ -17,14 +18,12 @@ export function Modal({ state, setState, onClose }) {
       overlayClassName="Overlay"
       style={customStyles}
     >
-      <p style={{ textAlign: 'center' }}>{startCase(label)}</p>
       <div
         style={{
           display: 'flex',
           flexWrap: 'wrap',
-          maxWidth: 400,
-          width: '100%',
           justifyContent: 'center',
+          marginTop: '1rem',
         }}
       >
         {name === 'store' ? (
@@ -108,6 +107,7 @@ const Store = ({ state, setState, purchases, afford }) => {
     const cost = getCost(state, purchase)
     const canAfford = utils.getCanAfford(state, purchase)
     const currentLevel = getCurrentLevel(state, purchase)
+
     return (
       <div
         key={purchase.title}
@@ -116,15 +116,17 @@ const Store = ({ state, setState, purchases, afford }) => {
           flexDirection: 'column',
           justifyContent: 'center',
           textAlign: 'center',
-          width: 150,
-          height: 80,
+          width: '4rem',
+          height: '2rem',
           margin: 10,
         }}
       >
-        <p style={{ fontSize: 12, margin: 0 }}>{purchase.title}</p>
+        <p style={{ fontSize: '.4rem', margin: 0 }}>{purchase.title}</p>
         {purchase.description && (
-          <p style={{ fontSize: 9, margin: '5px 0' }}>
-            {purchase.description(currentLevel)}
+          <p style={{ fontSize: '.25rem', margin: '5px 0' }}>
+            {typeof cost.value === 'number'
+              ? purchase.description(currentLevel)
+              : purchase.description(currentLevel - 1)}
           </p>
         )}
 
@@ -175,8 +177,8 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
+    maxWidth: '10rem',
+    width: '100%',
     zIndex: 99999,
   },
 }
-
-BaseModal.setAppElement('#root')

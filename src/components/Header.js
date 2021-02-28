@@ -1,5 +1,5 @@
 import React from 'react'
-import { COLORS, STORES } from '../constants'
+import { CHEAT_MODE, COLORS, STORES } from '../constants'
 import { getCanAfford } from '../utils'
 
 export function Header({ state, setModal }) {
@@ -22,7 +22,7 @@ export function Header({ state, setModal }) {
   return (
     <header>
       <div style={{ flex: 1, display: 'flex' }}>
-        <span style={{ fontSize: 12 }}>Cards Against Luminosity</span>
+        <span style={{ fontSize: '.5rem' }}>Cards Against Luminosity</span>
       </div>
 
       <div
@@ -52,7 +52,7 @@ export function Header({ state, setModal }) {
           justifyContent: 'center',
         }}
       >
-        {state.max_points.red > 0 && (
+        {(CHEAT_MODE || state.max_points.red > 0) && (
           <button onClick={() => setModal({ name: 'store', type: 'red' })}>
             Red Store{' '}
             {unseenUpgradesRed.length > 0
@@ -60,7 +60,7 @@ export function Header({ state, setModal }) {
               : ''}
           </button>
         )}
-        {state.max_points.green > 0 && (
+        {(CHEAT_MODE || state.max_points.green > 0) && (
           <button onClick={() => setModal({ name: 'store', type: 'green' })}>
             Green Store{' '}
             {unseenUpgradesGreen.length > 0
@@ -68,7 +68,7 @@ export function Header({ state, setModal }) {
               : ''}
           </button>
         )}
-        {state.max_points.blue > 0 && (
+        {(CHEAT_MODE || state.max_points.blue > 0) && (
           <button onClick={() => setModal({ name: 'store', type: 'blue' })}>
             Blue Store{' '}
             {unseenUpgradesBlue.length > 0

@@ -62,18 +62,20 @@ export function Footer({ onSave, onReset, onSubmit, onDraw, setState, state }) {
           Submit
         </TimerButton>
         {/* TODO: this should just be a checkbox under the players hand */}
-        <TimerButton
-          allowAuto={state.limits.play_auto}
-          autoEnabled={state.auto_play.play}
-          setAutoEnabled={(play) =>
-            setState({ ...state, auto_play: { ...state.auto_play, play } })
-          }
-          time={state.counters.play_time}
-          totalTime={state.limits.play_auto_time}
-          disabled
-        >
-          Play
-        </TimerButton>
+        {state.limits.play_auto > 0 && (
+          <TimerButton
+            allowAuto
+            autoEnabled={state.auto_play.play}
+            setAutoEnabled={(play) =>
+              setState({ ...state, auto_play: { ...state.auto_play, play } })
+            }
+            time={state.counters.play_time}
+            totalTime={state.limits.play_auto_time}
+            disabled
+          >
+            Autoplay
+          </TimerButton>
+        )}
       </div>
       <div
         style={{
@@ -94,8 +96,8 @@ const tps = 1000 / constants.TICK
 
 // TODO: should make this a progress bar style button
 const TimerButton = ({
-  cache = 0,
-  cacheMax = 1,
+  cache,
+  cacheMax,
   time,
   autoEnabled,
   setAutoEnabled,
@@ -105,22 +107,35 @@ const TimerButton = ({
   onClick,
   disabled,
 }) => (
-  <div>
-    <p style={{ fontSize: 10, margin: 0, textAlign: 'center' }}>
-      {cache}/{cacheMax}
-    </p>
-    <p style={{ fontSize: 10, margin: 0, textAlign: 'center' }}>
+  <div
+    style={{
+      width: '3rem',
+      height: '2rem',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    }}
+  >
+    <p style={{ fontSize: '.5rem', margin: 0, textAlign: 'center' }}>
       {(time / tps).toFixed(1)}/{(totalTime / tps).toFixed(1)}
     </p>
-    <button disabled={cache === 0 || disabled} onClick={onClick}>
-      {children}
-    </button>
-    {!!allowAuto && (
-      <input
-        type="checkbox"
-        checked={!!autoEnabled}
-        onChange={() => setAutoEnabled(!autoEnabled)}
-      />
+    {cacheMax > 0 && (
+      <p style={{ fontSize: '.5rem', margin: 0, textAlign: 'center' }}>
+        {cache}/{cacheMax}
+      </p>
     )}
+    <div style={{ display: 'flex', flexDirection: 'row' }}>
+      <button disabled={cache === 0 || disabled} onClick={onClick}>
+        {children}
+      </button>
+      {!!allowAuto && (
+        <input
+          type="checkbox"
+          checked={!!autoEnabled}
+          onChange={() => setAutoEnabled(!autoEnabled)}
+        />
+      )}
+    </div>
   </div>
 )

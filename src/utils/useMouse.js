@@ -12,6 +12,7 @@ export const useMouse = (_onMouseDown) => {
 
   useWindowEvent('pointerdown', ({ clientX, clientY }) => {
     let element = document.elementFromPoint(clientX, clientY)
+    console.log(element)
     if (element?.classList.contains('click')) element = element.parentElement
     startRef.current.x = clientX
     startRef.current.y = clientY
@@ -41,6 +42,7 @@ export const useOnClick = (state, setState) => {
   const lastClickRef = useRef(0)
 
   return ({ element }) => {
+    if (!element) return
     const { list, index } = element.dataset
     if (!list) {
       if (isDoubleClick(lastClickRef.current))

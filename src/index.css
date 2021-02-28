@@ -1,5 +1,5 @@
 html {
-  font-size: 24px;
+  font-size: 48px;
 }
 
 body {
@@ -54,7 +54,11 @@ header {
 .Overlay {
   z-index: 99;
   position: fixed;
-  inset: 0px;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
   background-color: rgba(0, 0, 0, 0.75);
 }
 
@@ -66,8 +70,11 @@ header {
   height: 2rem;
   background-color: #fff;
   border-radius: 0.2rem;
-  box-shadow: 0 -0 5px rgba(0, 0, 0, 0.25);
   cursor: default;
+}
+
+.card.shadow {
+  box-shadow: 0 -0 5px rgba(0, 0, 0, 0.25);
 }
 
 .card .value {
@@ -85,7 +92,7 @@ header {
 
 .card .face {
   position: absolute;
-  font-size: 14px;
+  font-size: 0.55rem;
   bottom: 0rem;
   right: 0.1rem;
 }
@@ -109,11 +116,15 @@ header {
   left: 0;
   opacity: 0;
   transition: opacity 500ms;
+  pointer-events: none;
 }
 
 .card .click {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 }
 
 .card.hidden .back {
@@ -139,4 +150,8 @@ footer {
 }
 
 @media (min-width: 700px) {
+}
+
+button {
+  font-size: 0.4rem;
 }

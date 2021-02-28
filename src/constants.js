@@ -26,8 +26,8 @@ export const getNewCard = ({
 export const getCardWithRarity = ({ color, level }) => {
   let value, suit, direction
   if (level === 1) {
-    suit = shuffle([0, 1, 2])[0]
-    value = shuffle(suit === 0 ? [2, 3, 4, 5] : suit === 1 ? [2, 3] : [1, 2])[0]
+    suit = shuffle([0, 0, 1, 1, 2])[0]
+    value = shuffle(suit === 0 ? [3, 4, 5] : suit === 1 ? [2, 3] : [1])[0]
   }
   if (level === 2) {
     suit = shuffle([0, 1, 2, 3, 4])[0]
@@ -37,7 +37,7 @@ export const getCardWithRarity = ({ color, level }) => {
         : suit === 1
         ? [3, 4, 5]
         : suit === 2
-        ? [1, 2, 3]
+        ? [1]
         : suit === 3
         ? [1, 2, 3]
         : [1, 2, 3],
@@ -51,7 +51,7 @@ export const getCardWithRarity = ({ color, level }) => {
         : suit === 1
         ? [10, 20, 30]
         : suit === 2
-        ? [3, 4, 5]
+        ? [1]
         : suit === 3
         ? [3, 4, 5]
         : [3, 4, 5],
@@ -59,11 +59,13 @@ export const getCardWithRarity = ({ color, level }) => {
   }
 
   if (suit >= 1) {
-    if (level === 1) direction = shuffle([2, 8])[0]
-    if (level > 1) direction = shuffle([1, 2, 4, 8])[0]
+    if (level === 1) direction = shuffle([1, 2, 4, 8])[0]
+    if (level === 2) direction = shuffle([1, 2, 3, 4, 5, 6, 7, 8])[0]
+    if (level === 3)
+      direction = shuffle([3, 5, 6, 7, 9, 10, 11, 12, 13, 14, 15])[0]
   }
 
-  return getNewCard({ value, color, suit, direction })
+  return getNewCard({ value, color: suit === 0 ? color : 0, suit, direction })
 }
 
 const getPrice = (baseCost = 1, priceRatio = 1.07, level) =>
@@ -85,27 +87,27 @@ const BASEUPGRADES = {
   increaseMaxDraws: {
     title: 'Increase Draw max',
     description: (l) => `You can store up to ${l + 1} card draws.`,
-    cost: { type: 'red', levels: getPrices(1, 4, 10).slice(1) },
+    cost: { type: 'red', levels: getPrices(1, 4, 9).slice(1) },
     effect: { type: 'change-limit', params: { name: 'draw_cache', value: 1 } },
   },
 
   increaseHandSize: {
     title: 'Increase Hand Size',
     description: (l) => `Raise your max hand size to ${l + 2}`,
-    cost: { type: 'green', levels: getPrices(1, 5, 5).slice(1) },
+    cost: { type: 'green', levels: getPrices(1, 5, 4).slice(1) },
     effect: { type: 'change-limit', params: { name: 'hand_size', value: 1 } },
   },
 
   increaseBoardSize: {
     title: 'Increase Board Size',
     description: (l) => `You can submit ${l + 2} cards at once.`,
-    cost: { type: 'blue', levels: getPrices(5, 2.2, 24) },
+    cost: { type: 'blue', levels: getPrices(5, 2.2, 23) },
     effect: { type: 'change-limit', params: { name: 'board_size', value: 1 } },
   },
 
   addRedCard: {
     title: 'Add Common Red Card',
-    description: (l) => `Buy your ${l}nd common red card`,
+    description: (l) => `Buy your ${l + 1}nd common red card`,
     cost: { type: 'red', levels: getPrices(10, 1.3, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -114,7 +116,7 @@ const BASEUPGRADES = {
   },
   addGreenCard: {
     title: 'Add Common Green Card',
-    description: (l) => `Buy your ${l}nd common green card`,
+    description: (l) => `Buy your ${l + 1}nd common green card`,
     cost: { type: 'green', levels: getPrices(10, 1.3, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -123,7 +125,7 @@ const BASEUPGRADES = {
   },
   addBlueCard: {
     title: 'Add Common Blue Card',
-    description: (l) => `Buy your ${l}nd common blue card`,
+    description: (l) => `Buy your ${l + 1}nd common blue card`,
     cost: { type: 'blue', levels: getPrices(10, 1.3, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -134,9 +136,10 @@ const BASEUPGRADES = {
   decreaseDrawTime: {
     title: 'Decrease Draw Time',
     description: (l) =>
-      `Decrease your draw time to ${
-        (draw_time * TICK) / 1000 - (l + 1) * 0.4
-      } seconds`,
+      `Decrease your draw time to ${(
+        (draw_time * TICK) / 1000 -
+        (l + 1) * 0.4
+      ).toFixed(1)} seconds`,
     cost: { type: 'red', levels: getPrices(3, 1.6, 10).slice(1) },
     effect: { type: 'change-limit', params: { name: 'draw_time', value: -2 } },
   },
@@ -144,9 +147,10 @@ const BASEUPGRADES = {
   decreaseSubmitTime: {
     title: 'Decrease Submit Time',
     description: (l) =>
-      `Decrease your submit time to ${
-        (draw_time * TICK) / 1000 - (l + 1) * 0.4
-      } seconds`,
+      `Decrease your submit time to ${(
+        (draw_time * TICK) / 1000 -
+        (l + 1) * 0.4
+      ).toFixed(1)} seconds`,
     cost: { type: 'blue', levels: getPrices(3, 1.6, 10).slice(1) },
     effect: {
       type: 'change-limit',
@@ -156,9 +160,12 @@ const BASEUPGRADES = {
 
   increaseMaxSubmits: {
     title: 'Increase Submit max',
-    description: (l) => `You can store up to ${l + 1} card submits.`,
-    cost: { type: 'blue', levels: getPrices(3, 1.6, 10).slice(1) },
-    effect: { type: 'change-limit', params: { name: 'draw_cache', value: 1 } },
+    description: (l) => `You can store up to ${l + 2} card submits.`,
+    cost: { type: 'blue', levels: getPrices(3, 1.6, 9).slice(1) },
+    effect: {
+      type: 'change-limit',
+      params: { name: 'submit_cache', value: 1 },
+    },
   },
 
   autoDraw: {
@@ -193,7 +200,7 @@ const BASEUPGRADES = {
 
   addRedUncommonCard: {
     title: 'Add Uncommon Red Card',
-    description: (l) => `Buy your ${l}nd uncommon red card`,
+    description: (l) => `Buy your ${l + 1}nd uncommon red card`,
     cost: { type: 'red', levels: getPrices(100, 1.5, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -203,7 +210,7 @@ const BASEUPGRADES = {
 
   addGreenUncommonCard: {
     title: 'Add Uncommon Green Card',
-    description: (l) => `Buy your ${l}nd uncommon green card`,
+    description: (l) => `Buy your ${l + 1}nd uncommon green card`,
     cost: { type: 'green', levels: getPrices(100, 1.5, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -213,7 +220,7 @@ const BASEUPGRADES = {
 
   addBlueUncommonCard: {
     title: 'Add Uncommon Blue Card',
-    description: (l) => `Buy your ${l}nd uncommon blue card`,
+    description: (l) => `Buy your ${l + 1}nd uncommon blue card`,
     cost: { type: 'blue', levels: getPrices(100, 1.5, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -223,7 +230,7 @@ const BASEUPGRADES = {
 
   addRedRareCard: {
     title: 'Add Rare Red Card',
-    description: (l) => `Buy your ${l}nd rare red card`,
+    description: (l) => `Buy your ${l + 1}nd rare red card`,
     cost: { type: 'red', levels: getPrices(500, 1.6, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -232,7 +239,7 @@ const BASEUPGRADES = {
   },
   addGreenRareCard: {
     title: 'Add Rare Green Card',
-    description: (l) => `Buy your ${l}nd rare green card`,
+    description: (l) => `Buy your ${l + 1}nd rare green card`,
     cost: { type: 'green', levels: getPrices(500, 1.6, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -241,7 +248,7 @@ const BASEUPGRADES = {
   },
   addBlueRareCard: {
     title: 'Add Rare Blue Card',
-    description: (l) => `Buy your ${l}nd rare blue card`,
+    description: (l) => `Buy your ${l + 1}nd rare blue card`,
     cost: { type: 'blue', levels: getPrices(500, 1.6, 50).slice(1) },
     effect: {
       type: 'add-card',
@@ -267,9 +274,9 @@ const CARDS = [
   getNewCard({ value: 2, color: 1, suit: 0 }),
   getNewCard({ value: 2, color: 2, suit: 0 }),
   getNewCard({ value: 2, color: 3, suit: 0 }),
-  getNewCard({ value: 1, color: 1, suit: 0 }),
-  getNewCard({ value: 1, color: 2, suit: 0 }),
-  getNewCard({ value: 1, color: 3, suit: 0 }),
+  getNewCard({ value: 3, color: 1, suit: 0 }),
+  getNewCard({ value: 3, color: 2, suit: 0 }),
+  getNewCard({ value: 3, color: 3, suit: 0 }),
 ]
 export const getInitialState = () => {
   const shuffled = CARDS
@@ -286,7 +293,7 @@ export const getInitialState = () => {
       draw_count: 1,
       draw_auto: 0,
       submit_auto: 0,
-      play_auto_time: 20,
+      play_auto_time: 5,
       play_auto: 0,
       draw_cache: 1,
       submit_cache: 1,

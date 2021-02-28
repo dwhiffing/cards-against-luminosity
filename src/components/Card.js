@@ -51,13 +51,18 @@ export const Card = React.memo(
     const suit = constants.SUITS[card.suit]
     const color = constants.COLORS[card._color || card.color]
     const isHidden = card.list === 'draw'
+    const isEmpty = typeof card.value !== 'number'
+    const isBottom =
+      (card.list === 'draw' || card.list === 'discard' || !card.list) &&
+      !card.index
 
     const classes = [
       `card can-move rank${card.value}`,
+      (isEmpty || isBottom) && 'shadow',
       isHidden && 'hidden',
       (isActive || card.list === 'draw' || card.list === 'discard') &&
         'disable-touch',
-      typeof card.value !== 'number' && 'empty',
+      isEmpty && 'empty',
       suit,
     ]
 
@@ -72,7 +77,7 @@ export const Card = React.memo(
             style={{
               transform: `translate3d(${x}px, ${y}px, 0) rotate(${r}deg) scale(${s})`,
               backgroundColor: `rgba(255,255,255,${o})`,
-              zIndex: isActive ? 20 : typeof card.value !== 'number' ? 0 : 10,
+              zIndex: isActive ? 20 : isEmpty ? 0 : 10,
               color,
               display: 'flex',
               justifyContent: 'center',

@@ -1,4 +1,5 @@
 import { groupBy } from 'lodash'
+import { getBoardWidth } from '../components/App'
 import * as constants from '../constants'
 import { getDirections } from './index'
 
@@ -11,34 +12,34 @@ export const scoreCards = (state) => {
   let {
     0: pointCards = [],
     1: multiCards = [],
-    2: upgradeCards = [],
-    3: removeCards = [],
+    2: removeCards = [],
+    3: upgradeCards = [],
     4: persistCards = [],
   } = cardGroups
 
   const applyEffect = (card, effect) => {
     const effectedCards = getCardsInDirection(state, card)
     effectedCards.forEach((c) => {
-      const target = pointCards.find((pc) => c.id === pc.id)
-      effect(target)
+      const target = scoredCards.find((pc) => c.id === pc.id)
+      if (target) effect(target)
     })
   }
 
   persistCards.forEach((card) =>
     applyEffect(card, (target) => {
-      target._hp = card.value
+      target._hp = card._value
     }),
   )
 
   upgradeCards.forEach((card) =>
     applyEffect(card, (target) => {
-      target.value += card.value
+      target.value += card._value
     }),
   )
 
   multiCards.forEach((card) =>
     applyEffect(card, (target) => {
-      target._value *= card.value
+      target._value *= card._value
     }),
   )
 
@@ -47,7 +48,7 @@ export const scoreCards = (state) => {
     cards: {
       ...state.cards,
       board: state.cards.board.map(
-        (c) => pointCards.find((pc) => pc.id === c.id) || c,
+        (c) => scoredCards.find((pc) => pc.id === c.id) || c,
       ),
     },
     points: addCardScores(state, pointCards),
@@ -132,7 +133,7 @@ const addCardScores = (state, cards) =>
 
 const getCardsInDirection = (state, card) => {
   const cards = state.cards.board
-  const s = state.limits.board_size
+  const s = getBoardWidth(state.limits.board_size)
   const p = card.index
   // TODO: implement diagonals  tr, br, bl, tl
   const [t, r, b, l] = getDirections(card.direction)

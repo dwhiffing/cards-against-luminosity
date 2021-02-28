@@ -84,7 +84,7 @@ const App = () => {
 
 export default App
 
-const getBoardWidth = (size) => {
+export const getBoardWidth = (size) => {
   if (size >= 17) return 5
   if (size >= 10) return 4
   if (size > 4) return 3
