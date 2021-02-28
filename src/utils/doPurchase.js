@@ -1,4 +1,4 @@
-import { getNewCard, getBoard } from '../constants'
+import { getBoard } from '../constants'
 
 // utils.doPurchase(state, {
 //                 cost: {},
@@ -6,12 +6,12 @@ import { getNewCard, getBoard } from '../constants'
 //               }),
 
 export const doPurchase = (state, purchase) => {
-  let points = getCost(state, purchase).reduce(
-    (sum, [k, v]) => ({ ...sum, [k]: sum[k] - v }),
-    { ...state.points },
-  )
+  const cost = getCost(state, purchase)
+  let points = { ...state.points }
   let cards = { ...state.cards }
   let limits = { ...state.limits }
+
+  points[cost.type] -= cost.value
 
   if (purchase.effect.type === 'add-points') {
     points = Object.entries(points).reduce(
@@ -71,11 +71,10 @@ export const doPurchase = (state, purchase) => {
 
 export const getCost = (state, purchase) => {
   const currentLevel = state.purchases[purchase.name] || 0
-  return Object.entries(purchase.cost).map(([k, v]) => [k, v[currentLevel]])
+  return { type: purchase.cost.type, value: purchase.cost.levels[currentLevel] }
 }
 
 export const getCanAfford = (state, purchase) => {
-  return getCost(state, purchase).every(([key, val]) => {
-    return state.points[key] >= val
-  })
+  const cost = getCost(state, purchase)
+  return state.points[cost.type] >= cost.value
 }

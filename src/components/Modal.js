@@ -85,10 +85,11 @@ const AddCard = ({ state, setState }) => {
 }
 
 const Store = ({ state, setState, purchases, afford }) => {
-  const affordable = purchases.filter((p) => {
-    const cost = getCost(state, p)
-    return cost.every(([name, value]) => state.max_points[name] >= value)
-  })
+  const affordable = purchases.filter(
+    (p) =>
+      utils.getCanAfford(state, p) ||
+      Object.keys(state.seen_upgrades).includes(p.name),
+  )
 
   useEffect(() => {
     const newUpgrades = affordable.reduce((obj, up) => {
@@ -107,41 +108,50 @@ const Store = ({ state, setState, purchases, afford }) => {
     // eslint-disable-next-line
   }, [])
 
-  return affordable.map((purchase) => (
-    <div
-      key={purchase.title}
-      style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        textAlign: 'center',
-        width: 150,
-        height: 80,
-        margin: 10,
-      }}
-    >
-      <p style={{ fontSize: 12, margin: 0 }}>{purchase.title}</p>
+  return affordable.map((purchase) => {
+    const cost = getCost(state, purchase)
 
-      {getCost(state, purchase).map(([name, value]) => (
-        <span style={{ fontSize: 8, margin: '5px 0' }}>
-          {name}:{value}
-        </span>
-      ))}
-
-      <button
+    console.log(cost)
+    return (
+      <div
         key={purchase.title}
-        onClick={() => {
-          if (utils.getCanAfford(state, purchase)) {
-            setState((state) => utils.doPurchase(state, purchase))
-          } else {
-            alert("You can't afford it")
-          }
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          textAlign: 'center',
+          width: 150,
+          height: 80,
+          margin: 10,
         }}
       >
-        Buy
-      </button>
-    </div>
-  ))
+        <p style={{ fontSize: 12, margin: 0 }}>{purchase.title}</p>
+        {purchase.description && (
+          <p style={{ fontSize: 9, margin: '5px 0' }}>{purchase.description}</p>
+        )}
+
+        {typeof cost.value === 'number' && (
+          <span style={{ fontSize: 8, margin: '5px 0' }}>
+            {cost.type}:{cost.value}
+          </span>
+        )}
+
+        <button
+          key={purchase.title}
+          disabled={typeof cost.value !== 'number'}
+          onClick={() => {
+            if (utils.getCanAfford(state, purchase)) {
+              setState((state) => utils.doPurchase(state, purchase))
+            } else {
+              alert("You can't afford it")
+            }
+          }}
+        >
+          {typeof cost.value === 'number' ? 'Buy' : 'Max'}
+        </button>
+      </div>
+    )
+  })
 }
 
 function Deck({ state }) {

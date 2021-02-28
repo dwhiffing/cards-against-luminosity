@@ -42,28 +42,28 @@ export const getCardWithRarity = ({ color = 1, rarity = random(0, 100) }) => {
 const BASEUPGRADES = {
   increaseHandSize: {
     title: 'Increase Hand Size',
-    cost: { red: [1, 5, 20] },
+    cost: { type: 'red', levels: [1, 5, 20] },
     effect: { type: 'change-limit', params: { name: 'hand_size', value: 1 } },
   },
   decreaseDrawTime: {
     title: 'Decrease Draw Time',
-    cost: { green: [1, 2, 4, 9, 15, 50, 100, 200] },
+    cost: { type: 'green', levels: [1, 2, 4, 9, 15, 50, 100, 200] },
     effect: { type: 'change-limit', params: { name: 'draw_time', value: -1 } },
   },
   increaseMaxDraws: {
     title: 'Increase Draw max',
-    cost: { green: [1, 2, 4, 9, 15, 50, 100, 200] },
+    cost: { type: 'green', levels: [1, 2, 4, 9, 15, 50, 100, 200] },
     effect: { type: 'change-limit', params: { name: 'draw_cache', value: 1 } },
   },
   increaseBoardSize: {
     title: 'Increase Board Size',
-    cost: { blue: [1, 50, 1000] },
+    cost: { type: 'blue', levels: [1, 50, 1000] },
     effect: { type: 'change-limit', params: { name: 'board_size', value: 1 } },
   },
 
   decreaseSubmitTime: {
     title: 'Decrease Submit Time',
-    cost: { blue: [0] },
+    cost: { type: 'blue', levels: [0] },
     effect: {
       type: 'change-limit',
       params: { name: 'submit_time', value: -1 },
@@ -72,7 +72,7 @@ const BASEUPGRADES = {
 
   prestige: {
     title: 'Prestige',
-    cost: { blue: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
+    cost: { type: 'blue', levels: [1, 1, 1, 1, 1, 1, 1, 1, 1, 1] },
     effect: {
       type: 'change-limit',
       params: { name: 'prestige', value: 0.1 },
@@ -81,7 +81,7 @@ const BASEUPGRADES = {
 
   autoDraw: {
     title: 'Auto Draw',
-    cost: { blue: [1] },
+    cost: { type: 'blue', levels: [1] },
     effect: {
       type: 'change-limit',
       params: { name: 'draw_auto', value: 1 },
@@ -90,7 +90,7 @@ const BASEUPGRADES = {
 
   autoSubmit: {
     title: 'Auto Submit',
-    cost: { blue: [1] },
+    cost: { type: 'blue', levels: [1] },
     effect: {
       type: 'change-limit',
       params: { name: 'submit_auto', value: 1 },
@@ -99,7 +99,8 @@ const BASEUPGRADES = {
 
   autoPlay: {
     title: 'Auto Play',
-    cost: { blue: [1] },
+    description: 'Automatically play cards',
+    cost: { type: 'blue', levels: [1] },
     effect: {
       type: 'change-limit',
       params: { name: 'play_auto', value: 1 },
@@ -108,23 +109,23 @@ const BASEUPGRADES = {
 
   addPoints: {
     title: 'Cheat Points',
-    cost: {},
+    cost: { type: 'red', levels: [1, 1, 1, 1, 1] },
     effect: { type: 'add-points', params: { value: 100 } },
   },
 
   addRedCard: {
     title: 'Add Red Card',
-    cost: { red: [1, 1, 1, 1, 1] },
+    cost: { type: 'red', levels: [1, 1, 1, 1, 1] },
     effect: { type: 'add-card', params: { color: 1 } },
   },
   addGreenCard: {
     title: 'Add Green Card',
-    cost: { green: [1, 1, 1, 1, 1] },
+    cost: { type: 'green', levels: [1, 1, 1, 1, 1] },
     effect: { type: 'add-card', params: { color: 2 } },
   },
   addBlueCard: {
     title: 'Add Blue Card',
-    cost: { blue: [1, 1, 1, 1, 1] },
+    cost: { type: 'blue', levels: [1, 1, 1, 1, 1] },
     effect: { type: 'add-card', params: { color: 3 } },
   },
 }
