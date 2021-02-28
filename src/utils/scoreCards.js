@@ -134,8 +134,8 @@ const getCardsInDirection = (state, card) => {
   const cards = state.cards.board
   const s = state.limits.board_size
   const p = card.index
-  // TODO: implement diagonals
-  const [t, r, b, l, tr, br, bl, tl] = getDirections(card.direction)
+  // TODO: implement diagonals  tr, br, bl, tl
+  const [t, r, b, l] = getDirections(card.direction)
   let result = []
 
   if (t) result.push(cards[p - s])
