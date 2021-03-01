@@ -6,7 +6,7 @@ export const CHEAT_MODE = true
 export const TICK = 200
 export const SUITS = '●×✂+↻'.split('')
 export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
-export const CARD_HEIGHT = 50
+export const CARD_HEIGHT = 100
 const draw_time = 25
 const submit_time = 25
 

@@ -148,6 +148,7 @@ footer {
   display: flex;
   justify-content: space-between;
   margin: 10px;
+  z-index: 99;
 }
 
 @media (max-width: 700px) {

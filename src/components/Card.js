@@ -19,24 +19,24 @@ export const Card = React.memo(
 
     if (card.list === 'hand') {
       _x = w - (handSize / 2) * constants.CARD_HEIGHT
-      _y = h / 0.8
+      _y = h / 0.7
       _x += card.index * constants.CARD_HEIGHT
     }
 
     if (card.list === 'board') {
       _x = w - (boardSize / 2) * constants.CARD_HEIGHT
-      _y = h / 3 + ((5 - boardSize) / 2) * constants.CARD_HEIGHT
+      _y = h / 5 + ((5 - boardSize) / 2) * constants.CARD_HEIGHT
       _x += (card.index % boardSize) * constants.CARD_HEIGHT
       _y += Math.floor(card.index / boardSize) * constants.CARD_HEIGHT
     }
 
     if (card.list === 'draw') {
       _x = w - 4 * constants.CARD_HEIGHT
-      _y = h / 0.8
+      _y = h / 0.7
     }
     if (card.list === 'discard') {
       _x = w + 3 * constants.CARD_HEIGHT
-      _y = h / 0.8
+      _y = h / 0.7
     }
 
     _x = isActive ? cursorState.mouseX : _x
