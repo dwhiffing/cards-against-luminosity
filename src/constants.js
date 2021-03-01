@@ -2,7 +2,7 @@ import { shuffle } from 'lodash'
 import { v4 as uuid } from 'uuid'
 
 export const emptyCard = { value: undefined, id: null, direction: 0 }
-export const CHEAT_MODE = true
+export const CHEAT_MODE = false
 export const TICK = 200
 export const SUITS = '●×✂+↻'.split('')
 export const COLORS = ['#333', '#d40000', '#33bb55', '#3322aa']
