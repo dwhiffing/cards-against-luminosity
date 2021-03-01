@@ -46,6 +46,7 @@ export const getDirections = (n = 0) => {
 export const autoplayCard = (state, card) => {
   if (state.cards.board.every((c) => !!c.value)) return state
   const index = state.cards.board.findIndex((c) => !c.value)
+  if (!card) return state
   return swapCards(state, { list: 'board', index }, card)
 }
 

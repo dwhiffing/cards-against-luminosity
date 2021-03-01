@@ -154,7 +154,7 @@ const Store = ({ state, setState, purchases, afford }) => {
 function Deck({ state }) {
   const cards = Object.values(state.cards)
     .flat()
-    .filter((c) => !!c.value)
+    .filter((c) => !!c?.value)
 
   return (
     <div style={{ display: 'flex', flexWrap: 'wrap' }}>

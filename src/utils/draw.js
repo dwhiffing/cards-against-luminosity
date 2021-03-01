@@ -7,7 +7,11 @@ export const draw = (state) => {
       state = { ...moveCard(state, 'draw', 'hand') }
   } else {
     state = { ...shuffleDiscard(state) }
-    state = { ...moveCard(state, 'draw', 'hand') }
+    if (
+      state.cards.draw.length > 0 &&
+      state.cards.hand.length < state.limits.hand_size
+    )
+      state = { ...moveCard(state, 'draw', 'hand') }
   }
   state = {
     ...state,
