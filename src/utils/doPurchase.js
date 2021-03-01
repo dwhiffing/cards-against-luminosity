@@ -32,8 +32,8 @@ export const doPurchase = (state, purchase) => {
       const size = purchase.effect?.params?.value || 0
       limits[purchase.effect.params.name] += size
       if (purchase.effect.params.name === 'board_size') {
-        // TODO: need to make sure this copies over contents of existing board
-        cards.board = getBoard(limits[purchase.effect.params.name])
+        const newBoard = getBoard(limits[purchase.effect.params.name])
+        cards.board = newBoard.map((c, i) => cards.board[i] || c)
       }
     }
   }
